@@ -1,0 +1,5 @@
+export { Home } from "./Home"
+// export { MyEnrollments } from "./MyEnrollments"
+// export { MyExams } from "./MyExams"
+// export { TakeExam } from "./TakeExam"
+export { ViewCourse } from "./ViewCourse"

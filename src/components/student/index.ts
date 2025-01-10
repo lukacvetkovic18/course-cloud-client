@@ -1,0 +1,1 @@
+export { RecommendedCourseCard } from "./RecommendedCourseCard"

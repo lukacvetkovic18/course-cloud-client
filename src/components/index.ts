@@ -1,0 +1,8 @@
+export { RecommendedCourseCard } from "./student"
+export { CourseCard } from "./CourseCard"
+export { CoursePopup } from "./CoursePopup"
+export { Footer } from "./Footer"
+export { Header } from "./Header"
+export { Login } from "./Login"
+export { Register } from "./Register"
+export { UserCard } from "./UserCard"
