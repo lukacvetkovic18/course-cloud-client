@@ -1,29 +1,41 @@
 import { useEffect, useState } from "react";
 import dropdownIcon from "../assets/dropdown-icon.png"
 import { isUserOwnerOfCourse } from "../services/courseService";
-import { deleteLesson } from "../services";
-import { uploadFile } from "../services/fileService";
-import { Lesson } from "../utils/models";
+import { createLesson, deleteLesson } from "../services";
+import { getFile, uploadFile } from "../services/fileService";
+import { FileModel, Lesson } from "../utils/models";
+import { createEmptyLesson, updateLesson } from "../services/lessonService";
 
-export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded, setIsLessonBeingAdded}: any) => {
-    // let [lesson, setLesson] = useState<Lesson>();
+export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, setIsLessonBeingAdded}: any) => {
+    // View lesson
     let [isOwner, setIsOwner] = useState<boolean>(false);
-    let [isLessonExpanded, setIsLessonExpanded] = useState<boolean>(false)
-    let [lessonName, setLessonName] = useState<string>("");
-    let [lessonMaterials, setLessonMaterials] = useState<string[]>([]);
+    let [isLessonExpanded, setIsLessonExpanded] = useState<boolean>(false);
+
+    // let [lessonName, setLessonName] = useState<string>("");
+    // let [lessonMaterials, setLessonMaterials] = useState<FileModel[]>([]);
+
+    // Edit lesson
     let [selectedFile, setSelectedFile] = useState<File | null>(null);
     let [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+
+    // Add new lesson
+    let [newLesson, setNewLesson] = useState<Lesson>();
 
     useEffect(() => {
         if (lesson && !isLessonBeingAdded) {
             loadIsUserOwnerOfLesson();
         }
+        if (isLessonBeingAdded && !lesson) {
+            createEmptyLesson(courseId).then(res => {
+                setNewLesson(res.data)
+            })
+        }
     }, [])
 
     const loadIsUserOwnerOfLesson = () => {
-        // isUserOwnerOfCourse(lesson!.course.id).then(res => {
-        //     setIsOwner(res.data);
-        // })
+        isUserOwnerOfCourse(lesson!.course.id).then(res => {
+            setIsOwner(res.data);
+        })
     }
 
     const removeLesson = () => {
@@ -33,9 +45,12 @@ export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded
     const toggleIsExpanded = () => {
         setIsLessonExpanded(!isLessonExpanded);
     }
-
+ 
     const handleNameChange = (e: any) => {
-        setLessonName(e.target.value);
+        setNewLesson((uInfo: any) => ({
+            ...uInfo,
+            title: e.target.value
+        }))
     }
 
     const handleFileChange = (e: any) => {
@@ -43,43 +58,58 @@ export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded
     };
 
     const addLesson = () => {
-        const newLesson: Lesson = {
-            id: Math.random(), // or use a proper unique id generator
-            // course: lesson.course,
-            title: lessonName,
-            description: "",
-            lessonOrder: 1,
-            isExpanded: true,
-            materials: lessonMaterials,
-        };
-        setLessons((prevLessons: Lesson[]) => [...prevLessons, newLesson]);
+        const req = {
+            id: newLesson!.id,
+            courseId: null,
+            title: newLesson?.title || null,
+            content: null,
+            lessonOrder: null
+        }
+        updateLesson(req);
         setIsLessonBeingAdded(false);
         console.log(newLesson)
     };
 
     const handleFileUpload = () => {
-        if (selectedFile && lesson) {
-            uploadFile(selectedFile, lesson.id).then(res => {
-                setUploadedFiles(prevFiles => [...prevFiles, res.data]);
-                setLessonMaterials(prevMaterials => [...prevMaterials, res.data.name]);
+        if (selectedFile) {
+            uploadFile(selectedFile, newLesson!.id).then(res => {
+                const uploadedFile: FileModel = res.data;
+                setUploadedFiles(prevFiles => [...prevFiles, uploadedFile]);
+                setNewLesson((uInfo: any) => ({
+                    ...uInfo,
+                    materials: (prevMaterials:any) => [...prevMaterials, uploadedFile]
+                }))
                 setSelectedFile(null);
             });
         }
     };
 
-    const downloadFile = (fileId: number) => {
-        // Implement downloadFile function
-        fetch(`/api/files/${fileId}`)
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(new Blob([blob]));
-                const link = document.createElement('a');
+    // const downloadFile = (fileId: number) => {
+    //     // Implement downloadFile function
+    //     getFile(fileId)
+    //         .then((response:any) => response.blob())
+    //         .then((blob:any) => {
+    //             const url = window.URL.createObjectURL(new Blob([blob]));
+    //             const link = document.createElement('a');
+    //             link.href = url;
+    //             link.setAttribute('download', 'file.pdf'); // or extract the filename from response
+    //             document.body.appendChild(link);
+    //             link.click();
+    //             link.parentNode?.removeChild(link);
+    //         });
+    // };
+    const downloadFile = (fileId: number, fileName: string) => {
+        getFile(fileId)
+            .then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
                 link.href = url;
-                link.setAttribute('download', 'file.pdf'); // or extract the filename from response
+                link.setAttribute("download", fileName);
                 document.body.appendChild(link);
                 link.click();
-                link.parentNode?.removeChild(link);
-            });
+                document.body.removeChild(link);
+            })
+            .catch(error => console.error("File download failed:", error));
     };
 
     return (<>
@@ -102,7 +132,7 @@ export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded
                         {lesson.materials.map((material: any, index: any) => (
                             <div key={index}>
                                 <span>{material}</span>
-                                <button onClick={() => downloadFile(material.id)}>Download</button>
+                                <button onClick={() => downloadFile(material.id,  material.name)}>Download</button>
                             </div>
                         ))}
                     </div>
@@ -114,7 +144,7 @@ export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded
                 <div className="lesson-header">
                     <input
                         className="lesson-title-input"
-                        value={lessonName}
+                        value={newLesson?.title}
                         type="text"
                         placeholder="Title"
                         onChange={handleNameChange}
@@ -126,10 +156,10 @@ export const LessonCard = ({lesson, setLessons, isCreateMode, isLessonBeingAdded
                             <button onClick={handleFileUpload}>Upload File</button>
                         </div>
                         <div>
-                            {uploadedFiles.map(file => (
-                                <div key={file.id}>
-                                    <span>{file.name}</span>
-                                    <button onClick={() => downloadFile(file.id)}>Download</button>
+                            {newLesson?.materials.map((material: FileModel, index: number) => (
+                                <div key={material.id}>
+                                    <span>{material.name}</span>
+                                    <button onClick={() => downloadFile(material.id,  material.name)}>Download</button>
                                 </div>
                             ))}
                         </div>

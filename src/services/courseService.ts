@@ -7,6 +7,8 @@ export const createCourse = (course: {
     duration: number
 }) => axiosInstance.post("/courses", course);
 
+export const createEmptyCourse = () => axiosInstance.post("/courses/empty");
+
 export const getAllCourses = () => axiosInstance.get("/courses");
 
 export const getCourseById = (id: number) => axiosInstance.get(`/courses/${id}`);

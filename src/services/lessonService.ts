@@ -7,6 +7,10 @@ export const createLesson = (lesson: {
     lessonOrder: number
 }) => axiosInstance.post("/lessons", lesson);
 
+export const createEmptyLesson = (lesson: {
+    courseId: number
+}) => axiosInstance.post("/lessons/empty", lesson);
+
 export const getAllLessons = () => axiosInstance.get("/lessons");
 
 export const getLessonById = (id: number) => axiosInstance.get(`/lessons/${id}`);

@@ -39,12 +39,18 @@ export interface Enrollment {
 
 export interface Lesson {
     id: number;
-    // course: Course;
+    course: Course;
     title: string;
     description: string;
-    materials: string[];
+    materials: FileModel[];
     lessonOrder: number;
     isExpanded: boolean;
+}
+
+export interface FileModel {
+    id: number;
+    name: string;
+    type: string;
 }
 
 export interface LessonCoverage {
