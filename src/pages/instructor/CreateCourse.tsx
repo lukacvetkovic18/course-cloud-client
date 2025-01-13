@@ -6,7 +6,7 @@ import { Header } from "../../components/Header";
 import example from "../../assets/add-image.png"
 import { Footer } from "../../components/Footer";
 import { LessonCard } from "../../components/LessonCard";
-import { createEmptyCourse } from "../../services/courseService";
+import { createEmptyCourse, getCourseById } from "../../services/courseService";
 
 export const CreateCourse = () => {
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ export const CreateCourse = () => {
             navigate("/");
         };
         loadUser();
-        createNewLesoon();
+        createNewLesson();
     }, []);
 
     const loadUser = () => {
@@ -46,10 +46,15 @@ export const CreateCourse = () => {
         })
     }
 
-    const createNewLesoon = () => {
-        createEmptyCourse().then(res => {
+    const createNewLesson = () => {
+        getCourseById(11).then(res => {
             setNewCourse(res.data)
+            console.log(newCourse)
         })
+        // createEmptyCourse().then(res => {
+        //     setNewCourse(res.data)
+        //     console.log(newCourse)
+        // })
     }
  
     const handleChange = (e: any) => {
@@ -98,7 +103,7 @@ export const CreateCourse = () => {
                     />
                 </div>
                 <div className="lessons-info">
-                    <span>Lessons</span>
+                    <span className="lessons-title">Lessons</span>
                     <div className="lessons-container">
                         {
                             lessons && lessons.map(lesson => {
@@ -116,7 +121,7 @@ export const CreateCourse = () => {
                         {
                             isLessonBeingAdded && <LessonCard
                                 lesson={null}
-                                setLessons={setLessons}
+                                courseId={newCourse.id}
                                 isCreateMode={true}
                                 isLessonBeingAdded={isLessonBeingAdded}
                                 setIsLessonBeingAdded={setIsLessonBeingAdded}

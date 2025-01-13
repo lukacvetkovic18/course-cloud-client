@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import dropdownIcon from "../assets/dropdown-icon.png"
 import { isUserOwnerOfCourse } from "../services/courseService";
 import { createLesson, deleteLesson } from "../services";
-import { getFile, uploadFile } from "../services/fileService";
+import { deleteFile, downloadFile, uploadFile } from "../services/fileService";
 import { FileModel, Lesson } from "../utils/models";
 import { createEmptyLesson, updateLesson } from "../services/lessonService";
+import tickSign from "../assets/tick-sign.png"
+import xSign from "../assets/x-sign.png"
+import imageIcon from "../assets/image-icon.png"
+import pdfIcon from "../assets/pdf-icon.png"
+import plusSign from "../assets/plus-sign.png"
 
 export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, setIsLessonBeingAdded}: any) => {
     // View lesson
@@ -26,7 +31,8 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
             loadIsUserOwnerOfLesson();
         }
         if (isLessonBeingAdded && !lesson) {
-            createEmptyLesson(courseId).then(res => {
+            console.log(courseId)
+            createEmptyLesson({courseId}).then(res => {
                 setNewLesson(res.data)
             })
         }
@@ -57,6 +63,10 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
         setSelectedFile(e.target.files[0]);
     };
 
+    const handleFileCancel = () => {
+        setSelectedFile(null);
+    };
+
     const addLesson = () => {
         const req = {
             id: newLesson!.id,
@@ -77,7 +87,7 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
                 setUploadedFiles(prevFiles => [...prevFiles, uploadedFile]);
                 setNewLesson((uInfo: any) => ({
                     ...uInfo,
-                    materials: (prevMaterials:any) => [...prevMaterials, uploadedFile]
+                    materials: [...(uInfo.materials || []), uploadedFile] 
                 }))
                 setSelectedFile(null);
             });
@@ -98,8 +108,8 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
     //             link.parentNode?.removeChild(link);
     //         });
     // };
-    const downloadFile = (fileId: number, fileName: string) => {
-        getFile(fileId)
+    const downloadFileFromDB = (fileId: number, fileName: string) => {
+        downloadFile(fileId)
             .then(response => {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement("a");
@@ -112,6 +122,22 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
             .catch(error => console.error("File download failed:", error));
     };
 
+    const removeFile = (file: any) => {
+        deleteFile(file.id).then(() => {
+            newLesson?.materials.filter(m => m.id !== file.Id);
+        })
+    }
+
+    const splitByLastDot = (filename:string) => {
+        const lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            // No dot found in the filename
+            return [filename, ''];
+        }
+        const name = filename.substring(0, lastDotIndex);
+        const extension = filename.substring(lastDotIndex + 1);
+        return [name, extension];
+    }
     return (<>
         {
             lesson && <div className="lesson-card-container">
@@ -132,7 +158,7 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
                         {lesson.materials.map((material: any, index: any) => (
                             <div key={index}>
                                 <span>{material}</span>
-                                <button onClick={() => downloadFile(material.id,  material.name)}>Download</button>
+                                <button onClick={() => downloadFileFromDB(material.id,  material.name)}>Download</button>
                             </div>
                         ))}
                     </div>
@@ -140,32 +166,56 @@ export const LessonCard = ({lesson, courseId, isCreateMode, isLessonBeingAdded, 
             </div>
         }
         {
-            isLessonBeingAdded && <div className="lesson-card-container">
+            newLesson && isLessonBeingAdded && <div className="lesson-card-container is-being-added">
                 <div className="lesson-header">
                     <input
                         className="lesson-title-input"
-                        value={newLesson?.title}
+                        value={newLesson.title}
                         type="text"
                         placeholder="Title"
                         onChange={handleNameChange}
                     />
                 </div>
-                    <div className="lesson-details show">
-                        <div className="file-upload-section">
-                            <input type="file" onChange={handleFileChange} />
-                            <button onClick={handleFileUpload}>Upload File</button>
-                        </div>
-                        <div>
-                            {newLesson?.materials.map((material: FileModel, index: number) => (
-                                <div key={material.id}>
-                                    <span>{material.name}</span>
-                                    <button onClick={() => downloadFile(material.id,  material.name)}>Download</button>
-                                </div>
-                            ))}
-                        </div>
+                <div className="lesson-details show">
+                    <div className="file-upload-section">
+                        {
+                            !selectedFile && <>
+                                <label htmlFor="file-upload" className="custom-file-upload">
+                                    <img src={plusSign}/>
+                                </label>
+                                <input id="file-upload" type="file" onChange={handleFileChange}/>
+                            </>
+                        }
+                        {
+                            selectedFile && <>
+                                <img className="type-icon" src={selectedFile.type.startsWith("image/") ? imageIcon : pdfIcon }/>
+                                <span className="selected-file-name">{splitByLastDot(selectedFile.name)[0]}</span>
+                                <button onClick={handleFileUpload}>
+                                    <img src={tickSign}/>
+                                </button>
+                                <button onClick={handleFileCancel}>
+                                    <img src={xSign}/>
+                                </button>
+                            </>
+                        }
                     </div>
-                <button onClick={addLesson}>ADD</button>
-                <button onClick={() => setIsLessonBeingAdded(false)}>CANCEL</button>
+                    <div>
+                        {newLesson.materials && newLesson.materials.map((material: FileModel, index: number) => (
+                            <div className="file-item" key={material.id}>
+                                <img className="type-icon" src={material.type.startsWith("image/") ? imageIcon : pdfIcon }/>
+                                <span className="file-name">{splitByLastDot(material.name)[0]}</span>
+                                <button onClick={() => removeFile(material)}>
+                                    <img src={xSign}/>
+                                </button>
+                                {/* <button onClick={() => downloadFileFromDB(material.id,  material.name)}>Download</button> */}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="buttons-section">
+                    <button onClick={addLesson}>ADD</button>
+                    <button onClick={() => setIsLessonBeingAdded(false)}>CANCEL</button>
+                </div>
             </div>
         }
     </>);

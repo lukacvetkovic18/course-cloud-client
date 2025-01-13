@@ -11,6 +11,13 @@ export const uploadFile = (file: any, lessonId: number) => {
         }
     });
 };
-export const getFile = (id: number) => {
-    return axiosInstance.get(`/files/${id}`, { responseType: 'blob' });
+
+export const downloadFile = (id: number) => {
+    return axiosInstance.get(`/files/download/${id}`, { responseType: 'blob' });
 };
+
+export const deleteFile = (id: number) => axiosInstance.delete(`/files/${id}`);
+
+export const getLessonsByCourseId = (id: number) => axiosInstance.get(`/files/lesson/${id}`);
+
+export const deleteFilesByLessonId = (id: number) => axiosInstance.delete(`/files/lesson/${id}`);

@@ -960,12 +960,19 @@ button:disabled {
     height: 250px;
 }
 
-.create-course-container .lessons-info span,
+.create-course-container .lessons-info .lessons-title,
 .create-course-container .quiz-info span {
     font-size: 30px;
     margin-left: 25%;
     padding-bottom: 10px;
     border-bottom: 2px solid #796189;
+}
+
+.create-course-container .lessons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    width: 100%;
 }
 
 /* .create-course-container input {
@@ -985,13 +992,113 @@ button:disabled {
 
 /* LESSON CARD */
 
+.lesson-card-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 50%;
+    border-radius: 8px;
+}
+
+.is-being-added {
+    background-color: #D9D9D9;
+    padding: 10px;
+}
+
 .lesson-card-container .lesson-header {
     display: flex;
     justify-content: space-between;
     flex-direction: column;
     align-items: center;
+    border-bottom: 2px solid #796189;
 }
 
 .lesson-card-container .lesson-header .buttons img {
     height: 50px;
+}
+
+button {
+    background-color: #796189;
+    border: none;
+    color: #D9D9D9;
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+.lesson-card-container .file-upload-section {
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    border-bottom: 2px solid #796189;
+}
+
+.lesson-card-container .file-upload-section .selected-file-name{
+    margin-left: 10px;
+    font-size: 18px;
+}
+
+.lesson-card-container .file-upload-section input[type="file"] {
+    display: none;
+}
+
+.lesson-card-container .file-upload-section .custom-file-upload {
+    background-color: #796189;
+    border: none;
+    color: #D9D9D9;
+    border-radius: 50%;
+    margin: 10px 0;
+    padding: 8px 12px;
+    font-size: 18px;
+}
+.lesson-card-container .file-upload-section .custom-file-upload:hover {
+    background-color: #4d3b58;
+    cursor: pointer;
+}
+
+.lesson-card-container .file-upload-section .custom-file-upload img {
+    height: 20px;
+}
+
+.lesson-card-container .file-upload-section button {
+    background: none;
+    margin: 10px 2px;
+    /* padding: 10px 20px; */
+}
+
+.lesson-card-container .file-upload-section .type-icon {
+    height: 25px;
+}
+
+.lesson-card-container .file-upload-section button img {
+    height: 15px;
+    width: 15px;
+}
+
+.lesson-card-container .file-item {
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.lesson-card-container .file-item .file-name{
+    margin-left: 10px;
+    font-size: 18px;
+}
+
+.lesson-card-container .file-item button {
+    background: none;
+    margin: 10px 2px;
+    /* padding: 10px 20px; */
+}
+
+.lesson-card-container .file-item .type-icon {
+    height: 25px;
+}
+
+.lesson-card-container .file-item button img {
+    height: 15px;
+    width: 15px;
 }
