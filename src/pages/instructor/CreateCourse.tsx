@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Course, Lesson, Quiz, User } from "../../utils/models";
-import { getLoggedInUser } from "../../services";
+import { getLessonsByCourseId, getLoggedInUser } from "../../services";
 import { Header } from "../../components/Header";
 import example from "../../assets/add-image.png"
 import { Footer } from "../../components/Footer";
 import { LessonCard } from "../../components/LessonCard";
 import { createEmptyCourse, getCourseById } from "../../services/courseService";
+import { getFilesByLessonId, getFilesByLessonIds } from "../../services/fileService";
+import { createEmptyLesson } from "../../services/lessonService";
 
 export const CreateCourse = () => {
     const navigate = useNavigate();
@@ -31,14 +33,32 @@ export const CreateCourse = () => {
     let [lessons, setLessons] = useState<Lesson[]>([]);
     let [quiz, setQuiz] = useState<Quiz>();
     let [isLessonBeingAdded, setIsLessonBeingAdded] = useState<boolean>(false);
+    let [lessonBeingAdded, setLessonBeingAdded] = useState<number>(0);
 
     useEffect(() => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
+        // if(localStorage.getItem("courseId") !== null) {
+        //     const courseId = parseInt(localStorage.getItem("courseId")!);
+        //     loadUser();
+        //     loadNewCourse(courseId);
+        // } else {
+        //     navigate("/my-courses");
+        // }
         loadUser();
-        createNewLesson();
+        loadNewCourse();
     }, []);
+
+    useEffect(() => {
+        loadLessons();
+    }, [isLessonBeingAdded]);
+
+    useEffect(() => {
+        if (lessons.length > 0) {
+            loadLessonMaterials();
+        }
+    }, [lessons]);
 
     const loadUser = () => {
         getLoggedInUser().then(res => {
@@ -46,10 +66,43 @@ export const CreateCourse = () => {
         })
     }
 
-    const createNewLesson = () => {
+    const loadLessonMaterials = async () => {
+        try {
+            const lessonIds = lessons.map(lesson => lesson.id);
+            const res = await getFilesByLessonIds(lessonIds);
+            const materials = res.data;
+
+            const materialsMap = materials.reduce((acc: any, material: any) => {
+                const lessonId = material.lesson.id;
+                if (!acc[lessonId]) {
+                    acc[lessonId] = [];
+                }
+                acc[lessonId].push(material);
+                return acc;
+            }, {});
+
+            setLessons((prevLessons: Lesson[]) => 
+                prevLessons.map(lesson => 
+                    materialsMap[lesson.id] ? { ...lesson, materials: materialsMap[lesson.id] } : lesson
+                )
+            );
+        } catch (error) {
+            console.error("Failed to load lesson materials:", error);
+        }
+    };
+
+    const loadLessons = () => {
+        getLessonsByCourseId(11).then(res => {
+            setLessons(res.data);
+        }).catch(error => {
+            console.error("Failed to load lessons:", error);
+        });
+    };
+
+    const loadNewCourse = () => {
         getCourseById(11).then(res => {
-            setNewCourse(res.data)
-            console.log(newCourse)
+            setNewCourse(res.data);
+            loadLessons();
         })
         // createEmptyCourse().then(res => {
         //     setNewCourse(res.data)
@@ -66,7 +119,12 @@ export const CreateCourse = () => {
     }
 
     const addLesson = () => {
-        setIsLessonBeingAdded(true);
+        createEmptyLesson({courseId: 11}).then(res => {
+            // setLessons((prevLessons: Lesson[]) => [...prevLessons, res.data]);
+            setIsLessonBeingAdded(true);
+            setLessonBeingAdded(res.data.id);
+            // setLessonBeingAdded(lessons.find(l => l.id === res.data.id));
+        })
     }
  
     return (<>
@@ -107,31 +165,37 @@ export const CreateCourse = () => {
                     <div className="lessons-container">
                         {
                             lessons && lessons.map(lesson => {
-                                return <LessonCard
-                                    lesson={lesson}
-                                    setLessons={setLessons}
-                                    isCreateMode={true}
-                                    key={lesson.id}
-                                ></LessonCard>
+                                if(lesson.title) {
+                                    return <LessonCard
+                                        key={lesson.id}
+                                        lesson={lesson}
+                                        setLessons={setLessons}
+                                        lessonId={null}
+                                        isCreateMode={true}
+                                        isLessonBeingAdded={false}
+                                        setIsLessonBeingAdded={null}
+                                    ></LessonCard>
+                                }
                             })
                         }
                         {
                             !isLessonBeingAdded && <button onClick={addLesson}>+</button>
                         }
                         {
-                            isLessonBeingAdded && <LessonCard
+                            (lessonBeingAdded && isLessonBeingAdded) && <LessonCard
                                 lesson={null}
-                                courseId={newCourse.id}
+                                setLessons={setLessons}
+                                lessonId={lessonBeingAdded}
                                 isCreateMode={true}
-                                isLessonBeingAdded={isLessonBeingAdded}
+                                isLessonBeingAdded={lessonBeingAdded}
                                 setIsLessonBeingAdded={setIsLessonBeingAdded}
                             ></LessonCard>
                         }
                     </div>
-    
                 </div>
                 <div className="quiz-info">
                     <span>Quiz</span>
+                    <button>CREATE QUIZ</button>
                     <div className="quiz-container">
                     </div>
                 </div>

@@ -76,6 +76,8 @@ export interface Question {
     title: string;
     questionType: QuestionType;
     quiz: Quiz;
+    answers: Answer[];
+    isBeingEdited: boolean;
 }
 
 export interface Answer {

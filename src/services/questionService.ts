@@ -20,3 +20,9 @@ export const updateQuestion = (question: {
 export const deleteAllQuestions = () => axiosInstance.delete("/questions");
 
 export const deleteQuestion = (id: number) => axiosInstance.delete(`/questions/${id}`);
+
+export const getQuestionsByQuizId = (id: number) => axiosInstance.get(`/questions/quiz/${id}`);
+
+export const deleteQuestionsByQuizId = (id: number) => axiosInstance.delete(`/questions/quiz/${id}`);
+
+export const getAllQuestionTypes = () => axiosInstance.get("/questions/types");

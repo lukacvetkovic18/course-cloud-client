@@ -970,7 +970,9 @@ button:disabled {
 
 .create-course-container .lessons-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     margin-top: 30px;
     width: 100%;
 }
@@ -1009,23 +1011,75 @@ button:disabled {
 .lesson-card-container .lesson-header {
     display: flex;
     justify-content: space-between;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: center;
     border-bottom: 2px solid #796189;
+    width: 100%;
 }
 
-.lesson-card-container .lesson-header .buttons img {
-    height: 50px;
+.lesson-card-container .lesson-header .lesson-title {
+    font-size: 20px;
 }
 
-button {
-    background-color: #796189;
-    border: none;
-    color: #D9D9D9;
-    border-radius: 8px;
+.lesson-card-container .lesson-header input {
     margin: 10px 0;
-    padding: 10px 20px;
-    font-size: 18px;
+    font-size: 20px;
+}
+
+
+.lesson-card-container .lesson-header .buttons button {
+    margin:5px;
+}
+
+.lesson-card-container .lesson-header .buttons .remove-btn {
+    border-radius: 50%;
+    padding: 5px 8px;
+}
+
+.lesson-card-container .lesson-header .buttons .remove-btn img {
+    height: 15px;
+    width: 15px;
+}
+
+.lesson-card-container .lesson-header .buttons .expand-btn {
+    border-radius: 50%;
+    padding: 3px 6px;
+}
+
+.lesson-card-container .lesson-header .buttons .expand-btn img {
+    height: 20px;
+    width: 20px;
+}
+
+.lesson-card-container .lesson-header .buttons .edit-btn {
+    padding: 5px 10px;
+}
+
+.lesson-card-container .lesson-header .buttons .edit-btn span {
+    font-size: 15px;
+    color: white;
+}
+
+.lesson-card-container .lesson-header .buttons .show {
+    transform: rotate(90deg);
+}
+
+.lesson-card-container .lesson-header .buttons .hidden {
+    transform: rotate(270deg);
+}
+
+.lesson-card-container .lesson-details .file-name.clickable {
+    margin: 10px;
+}
+
+.lesson-card-container .lesson-details .file-name.clickable:hover {
+    text-decoration: underline;
+    color: #796189;
+    cursor: pointer;
+}
+
+.lesson-card-container .lesson-details .hidden {
+    display: none;
 }
 
 .lesson-card-container .file-upload-section {
@@ -1050,7 +1104,8 @@ button {
     color: #D9D9D9;
     border-radius: 50%;
     margin: 10px 0;
-    padding: 8px 12px;
+    padding: 6px 12px;
+    padding-top: 10px;
     font-size: 18px;
 }
 .lesson-card-container .file-upload-section .custom-file-upload:hover {
@@ -1095,10 +1150,18 @@ button {
 }
 
 .lesson-card-container .file-item .type-icon {
+    width: 25px;
     height: 25px;
 }
 
 .lesson-card-container .file-item button img {
     height: 15px;
     width: 15px;
+}
+
+.lesson-card-container .buttons-section button {
+    margin-right: 20px;
+    padding: 5px 10px;
+    font-size: 15px;
+    color: white;
 }

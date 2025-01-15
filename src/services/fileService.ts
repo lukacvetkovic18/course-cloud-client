@@ -18,6 +18,8 @@ export const downloadFile = (id: number) => {
 
 export const deleteFile = (id: number) => axiosInstance.delete(`/files/${id}`);
 
-export const getLessonsByCourseId = (id: number) => axiosInstance.get(`/files/lesson/${id}`);
+export const getFilesByLessonId = (id: number) => axiosInstance.get(`/files/lesson/${id}`);
 
 export const deleteFilesByLessonId = (id: number) => axiosInstance.delete(`/files/lesson/${id}`);
+
+export const getFilesByLessonIds = (ids: number[]) => axiosInstance.post(`/files/lessons/files`, ids);

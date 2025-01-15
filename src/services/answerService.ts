@@ -18,3 +18,9 @@ export const updateAnswer = (answer: {
 export const deleteAllAnswers = () => axiosInstance.delete("/answers");
 
 export const deleteAnswer = (id: number) => axiosInstance.delete(`/answers/${id}`);
+
+export const getAnswersByQuestionId = (id: number) => axiosInstance.get(`/answers/question/${id}`);
+
+export const deleteAnswersByQuestionId = (id: number) => axiosInstance.delete(`/answers/question/${id}`);
+
+export const getAnswersByQuestionIds = (ids: number[]) => axiosInstance.post(`/answers/questions/answers`, ids);

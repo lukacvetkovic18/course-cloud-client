@@ -18,3 +18,7 @@ export const updateQuiz = (quiz: {
 export const deleteAllQuizzes = () => axiosInstance.delete("/quizzes");
 
 export const deleteQuiz = (id: number) => axiosInstance.delete(`/quizzes/${id}`);
+
+export const getQuizzesByCourseId = (id: number) => axiosInstance.get(`/quizzes/course/${id}`);
+
+export const deleteQuizzesByCourseId = (id: number) => axiosInstance.delete(`/quizzes/course/${id}`);
