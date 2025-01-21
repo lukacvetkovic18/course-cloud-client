@@ -36,7 +36,8 @@ export const CreateCourse = () => {
     let [isLessonBeingAdded, setIsLessonBeingAdded] = useState<boolean>(false);
     let [lessonBeingAdded, setLessonBeingAdded] = useState<number>(0);
     let [quiz, setQuiz] = useState<Quiz>();
-    let [isQuizBeingEdited, setIsQuizBeingEdited] = useState<boolean>(true);
+    let [isQuizBeingEdited, setIsQuizBeingEdited] = useState<boolean>(false);
+    let [materialsLoaded, setMaterialsLoaded] = useState<boolean>(false);
     let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -62,7 +63,7 @@ export const CreateCourse = () => {
         if (lessons.length > 0) {
             loadLessonMaterials();
         }
-    }, [lessons]);
+    }, [lessons.length]);
 
     useEffect(() => {
         if (newCourse !== undefined) {
@@ -103,6 +104,7 @@ export const CreateCourse = () => {
                     materialsMap[lesson.id] ? { ...lesson, materials: materialsMap[lesson.id] } : lesson
                 )
             );
+            setMaterialsLoaded(true);
         } catch (error) {
             console.error("Failed to load lesson materials:", error);
         }
@@ -155,6 +157,7 @@ export const CreateCourse = () => {
     }
 
     const handleEditQuiz = () => {
+        console.log(quiz)
         setIsQuizBeingEdited(true);
     }
 
@@ -243,7 +246,7 @@ export const CreateCourse = () => {
         {(quiz && isQuizBeingEdited) && (
             <div className="quiz-popup-overlay">
                 <div className="quiz-popup-content" ref={popupRef}>
-                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz}/>
+                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz} setIsQuizBeingEdited={setIsQuizBeingEdited}/>
                 </div>
             </div>
         )}

@@ -2,6 +2,7 @@ import { axiosInstance } from "../utils/axiosInstance";
 
 export const createAnswer = (answer: {
     title: string,
+    isCorrect: boolean,
     questionId: number
 }) => axiosInstance.post("/answers", answer);
 
@@ -12,6 +13,7 @@ export const getAnswerById = (id: number) => axiosInstance.get(`/answers/${id}`)
 export const updateAnswer = (answer: {
     id: number,
     title: string | null,
+    isCorrect: boolean,
     questionId: number | null
 }) => axiosInstance.put("/answers", answer);
 

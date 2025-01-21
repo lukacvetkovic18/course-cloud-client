@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
-import { createQuestion, getAllQuestionTypes, getQuestionsByQuizId } from "../../services/questionService";
+import { createQuestion, deleteQuestion, getAllQuestionTypes, getQuestionsByQuizId, updateQuestionWithAnswers } from "../../services/questionService";
 import { Answer, Question, QuestionType } from "../../utils/models";
-import { createAnswer, deleteAnswersByQuestionId, getAnswersByQuestionIds } from "../../services/answerService";
+import { createAnswer, deleteAnswer, deleteAnswersByQuestionId, getAnswersByQuestionIds } from "../../services/answerService";
 import tickSign from "../../assets/tick-sign.png"
 import xSign from "../../assets/x-sign.png"
-import imageIcon from "../../assets/image-icon.png"
-import pdfIcon from "../../assets/pdf-icon.png"
 import plusSign from "../../assets/plus-sign.png"
-import minusSign from "../../assets/minus-sign.png"
+import { updateQuiz } from "../../services";
 
-export const AddQuizPopup = ({quiz, setQuiz}: any) => {
+export const AddQuizPopup = ({quiz, setQuiz, setIsQuizBeingEdited}: any) => {
     let [questions, setQuestions] = useState<Question[]>([]);
     let [questionTypes, setQuestionTypes] = useState<QuestionType[]>([]);
 
@@ -34,7 +32,12 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
 
     const loadQuizQuestions = () => {
         getQuestionsByQuizId(quiz.id).then(res => {
-            setQuestions(res.data);
+            // setQuestions(res.data);
+            const questionsWithEmptyAnswers = res.data.map((question: Question) => ({
+                ...question,
+                answers: question.answers || []
+            }));
+            setQuestions(questionsWithEmptyAnswers);
         }).catch(error => {
             console.error("Failed to load questions:", error);
         });
@@ -45,6 +48,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
             const questionIds = questions.map(question => question.id);
             const res = await getAnswersByQuestionIds(questionIds);
             const answers = res.data;
+            console.log(res.data);
 
             const answersMap = answers.reduce((acc: any, answer: Answer) => {
                 const questionId = answer.question.id;
@@ -57,7 +61,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
 
             setQuestions((prevQuestions: Question[]) => 
                 prevQuestions.map(question => 
-                    answersMap[question.id] ? { ...question, answers: answersMap[question.id] } : question
+                    answersMap[question.id] ? { ...question, answers: answersMap[question.id] } : { ...question, answers: [] }
                 )
             );
         } catch (error) {
@@ -71,7 +75,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
             questionTypeId: 2,
             quizId: quiz.id
         }).then(res => {
-            setQuestions((prevQuestions: Question[]) => [...prevQuestions, res.data]);
+            setQuestions((prevQuestions: Question[]) => [...prevQuestions, { ...res.data, answers: [], isBeingEdited: true }]);
         })
     }
  
@@ -82,28 +86,59 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
         }))
     }
 
-    const addNewAnswer = (question: Question) => {
+    const addNewAnswer = (questionId: number, isCorrect: boolean) => {
+        saveQuestionWithAnswers(questions.find(q=> q.id=== questionId)!);
         createAnswer({
             title: "",
-            questionId: question.id
+            isCorrect: isCorrect,
+            questionId: questionId
         }).then(res => {
-            console.log(res.data)
-            setQuestions(prevQuestions => 
-                prevQuestions.map(q => 
-                    q.id === question.id 
-                    ? { ...q, answers: [...q.answers, res.data] } 
-                    : q
-                )
-            );
+            // setQuestions(prevQuestions => 
+            //     prevQuestions.map(q => 
+            //         q.id === questionId 
+            //         ? { ...q, answers: [...q.answers, res.data] } 
+            //         : q
+            //     )
+            // );
+            loadQuestionAnswers();
         }).catch(error => {
             console.error("Failed to add answer:", error);
         });
     }
 
-    const deleteAnswers = (question: Question) => {
-        deleteAnswersByQuestionId(question.id).then(() => {
+    const deleteAnswers = (questionId: number) => {
+        deleteAnswersByQuestionId(questionId).then(() => {
             loadQuestionAnswers();
         })
+    }
+
+    const deleteSelectedAnswer = (answerId: number) => {
+        deleteAnswer(answerId).then(() => {
+            loadQuestionAnswers();
+        })
+    }
+
+    const saveQuestionWithAnswers = (question: Question) => {
+        const answers = question.answers.map(answer => ({
+            id: answer.id,
+            title: answer.title,
+            isCorrect: answer.isCorrect
+        }));
+
+        const req = {
+            id: question.id,
+            title: question.title,
+            questionTypeId: question.questionType.id,
+            answers: answers
+        }
+        updateQuestionWithAnswers(req)
+            .then(response => {
+                console.log("Question and answers updated successfully:", response);
+
+            })
+            .catch(error => {
+                console.error("Error updating question and answers:", error);
+            });
     }
 
     const handleIsQuesstionBeingEditedChange = (question: Question, condition: boolean) => {
@@ -132,10 +167,16 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                     // let updatedAnswers = [...q.answers];
 
                     if (newTypeId === 1 && q.questionType.id !== 1) {
-                        deleteAnswers(q);
-                        addNewAnswer(q);
+                        console.log("Changed from choices to short")
+                        deleteAnswersByQuestionId(q.id).then(() => {
+                            console.log(q.answers.length)
+                            if (q.answers.length === 0) {
+                                addNewAnswer(q.id, true);
+                            }
+                        })
                     } else if (newTypeId !== 1 && q.questionType.id === 1) {
-                        deleteAnswers(q);
+                        console.log("Changed from short to choices")
+                        deleteAnswers(q.id);
                     }
 
                     return { ...q, questionType: questionType! };
@@ -143,7 +184,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                 return q;
             })
         );
-    }
+    };
  
     const handleAnswerTitleName = (question: Question, answer: Answer, e: React.ChangeEvent<HTMLInputElement>) => {
         setQuestions((prevQuestions: Question[]) => 
@@ -174,26 +215,55 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
         );
     };
 
+    const canSaveAnswers = (question: Question) => {
+        return question.answers.every(a => a.title) && question.answers.some(a => a.isCorrect)
+    }
+
+    const canSaveQuestion = (question: Question) => {
+        return question.title && question.answers.length > 0 && canSaveAnswers(question);
+    }
+
+    const canSaveQuiz = () => {
+        return quiz.title && questions.length > 0 && questions.every(q => !q.isBeingEdited);
+    }
+
+    const saveQuiz = () => {
+        updateQuiz({
+            id: quiz.id,
+            title: quiz.title,
+            courseId: quiz.course.id
+        }).then(() => {
+            setIsQuizBeingEdited(false);
+        })
+    }
+
+    const removeQuestion = (questionId: number) => {
+        deleteQuestion(questionId).then(() => {
+            loadQuizQuestions();
+        })
+    }
+
     return (<>
         <div className="add-quiz-popup-container">
             <div className="top-section">
                 <input
                     value={quiz.title}
                     type="text"
-                    placeholder="Title"
+                    placeholder="Quiz Title"
                     onChange={handleTitleChange}
                 ></input>
             </div>
             <div className="questions-container">
+                <span className="questions-title">Questions:</span>
             {
                 questions.length > 0 && questions.map((question: Question) => (
-                    <div className="question-item">
+                    <div className="question-item" key={question.id}>
                         <div className="question-header">
                             <div className="title">
                                 {
                                     !question.isBeingEdited && <>
                                     <span>{question.title}</span>
-                                    <span>{question.questionType.name}</span></>
+                                    <span>{question.questionType.name.charAt(0).toUpperCase() + question.questionType.name.slice(1)}</span></>
                                 }
                                 {
                                     question.isBeingEdited && <>
@@ -219,7 +289,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                             <div className="answers-container">
                                 { 
                                     (question.questionType.id === 1 && question.isBeingEdited) &&
-                                    question.answers && <input
+                                    question.answers.length > 0 && <input
                                         className="answer-input"
                                         value={question.answers[0].title}
                                         type="text"
@@ -229,12 +299,12 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                                 }
                                 {
                                     (question.questionType.id === 1 && !question.isBeingEdited) &&
-                                    question.answers && <span className="answer-text">{question.answers[0].title}</span>
+                                    question.answers.length > 0 && <span className="answer-text">{question.answers[0].title}</span>
                                 }
                                 {
-                                    (question.questionType.id === 2 && question.isBeingEdited) && (
+                                    (question.questionType.id === 2 && question.isBeingEdited) && <>{
                                         question.answers && question.answers.map(answer => (
-                                            <label key={answer.id}>
+                                            <div className="answer-item"><label key={answer.id}>
                                                 <input 
                                                     type="radio" 
                                                     checked={answer.isCorrect}
@@ -248,15 +318,20 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                                                     onChange={(e) => handleAnswerTitleName(question, answer, e)}
                                                 />
                                             </label>
-                                        )) && 
-                                        <button onClick={() => addNewAnswer(question)}>ADD</button>
-                                    )
+                                            <img src={xSign} onClick={() => deleteSelectedAnswer(answer.id)}/>
+                                            </div>
+                                        ))
+                                    }
+                                    <button className="add-new-question-btn" onClick={() => addNewAnswer(question.id, false)}>
+                                        <img src={plusSign}/>
+                                    </button></>
                                 }
                                 {
                                     (question.questionType.id === 2 && !question.isBeingEdited) && (
                                         question.answers && question.answers.map(answer => (
                                             <label key={answer.id}>
-                                                { answer.isCorrect ? <span>U</span> : <span>x</span> }
+                                                { answer.isCorrect && <img src={tickSign}/> }
+                                                { !answer.isCorrect && <img src={xSign}/> }
                                                 <span>{answer.title}</span>
                                             </label>
                                         ))
@@ -265,7 +340,7 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                                 {
                                     (question.questionType.id === 3 && question.isBeingEdited) && <>{
                                         question.answers && question.answers.map(answer => (
-                                            <label key={answer.id}>
+                                            <div className="answer-item"><label key={answer.id}>
                                                 <input 
                                                     type="checkbox" 
                                                     checked={answer.isCorrect}
@@ -279,15 +354,20 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                                                     onChange={(e) => handleAnswerTitleName(question, answer, e)}
                                                 />
                                             </label>
+                                            <img src={xSign} onClick={() => deleteSelectedAnswer(answer.id)}/>
+                                            </div>
                                         ))
                                     }
-                                        <button onClick={() => addNewAnswer(question)}>ADD</button></>
+                                        <button className="add-new-question-btn" onClick={() => addNewAnswer(question.id, false)}>
+                                            <img src={plusSign}/>
+                                        </button></>
                                 }
                                 {
                                     (question.questionType.id === 3 && !question.isBeingEdited) && (
                                         question.answers && question.answers.map(answer => (
                                             <label key={answer.id}>
-                                                { answer.isCorrect ? <span>✓</span> : <span>x</span> }
+                                                { answer.isCorrect && <img src={tickSign}/> }
+                                                { !answer.isCorrect && <img src={xSign}/> }
                                                 <span>{answer.title}</span>
                                             </label>
                                         ))
@@ -301,10 +381,13 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                                 }
                                 {
                                     question.isBeingEdited && <>
-                                    <button onClick={() => handleIsQuesstionBeingEditedChange(question, false)}>SAVE</button>
+                                    <button onClick={() => {
+                                        saveQuestionWithAnswers(question);
+                                        handleIsQuesstionBeingEditedChange(question, false);
+                                    }} disabled={!canSaveQuestion(question)}>SAVE</button>
                                     <button onClick={() => handleIsQuesstionBeingEditedChange(question, false)}>CANCEL</button></>
                                 }
-                                <button>REMOVE</button>
+                                <button onClick={() => removeQuestion(question.id)}>REMOVE</button>
                             </div>
                         </div>
 
@@ -312,7 +395,13 @@ export const AddQuizPopup = ({quiz, setQuiz}: any) => {
                 ))
             }
             </div>
-            <button className="add-new-question-btn" onClick={addNewQuestion}>+</button>
+            <button className="add-new-question-btn" onClick={addNewQuestion}>
+                <img src={plusSign}/>
+            </button>
+            <div className="buttons-section">
+                <button onClick={saveQuiz} disabled={!canSaveQuiz()}>SAVE QUIZ</button>
+                <button onClick={() => setIsQuizBeingEdited(false)}>CANCEL</button>
+            </div>
         </div>
     </>);
 }
