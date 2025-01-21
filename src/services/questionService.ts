@@ -26,3 +26,14 @@ export const getQuestionsByQuizId = (id: number) => axiosInstance.get(`/question
 export const deleteQuestionsByQuizId = (id: number) => axiosInstance.delete(`/questions/quiz/${id}`);
 
 export const getAllQuestionTypes = () => axiosInstance.get("/questions/types");
+
+export const updateQuestionWithAnswers = (question: {
+    id: number,
+    title: string,
+    questionTypeId: number,
+    answers: [{
+        id: number,
+        title: string,
+        isCorrect: boolean
+    }]
+}) => axiosInstance.put("/questions/update-with-answers", question);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Course, Lesson, Quiz, User } from "../../utils/models";
 import { getLessonsByCourseId, getLoggedInUser } from "../../services";
@@ -9,6 +9,8 @@ import { LessonCard } from "../../components/LessonCard";
 import { createEmptyCourse, getCourseById } from "../../services/courseService";
 import { getFilesByLessonId, getFilesByLessonIds } from "../../services/fileService";
 import { createEmptyLesson } from "../../services/lessonService";
+import { AddQuizPopup } from "../../components/instructor/AddQuizPopup";
+import { createQuiz, getQuizByCourseId } from "../../services/quizService";
 
 export const CreateCourse = () => {
     const navigate = useNavigate();
@@ -31,9 +33,11 @@ export const CreateCourse = () => {
     let [newCourse, setNewCourse] = useState<Course>();
     let [user, setUser] = useState<User>();
     let [lessons, setLessons] = useState<Lesson[]>([]);
-    let [quiz, setQuiz] = useState<Quiz>();
     let [isLessonBeingAdded, setIsLessonBeingAdded] = useState<boolean>(false);
     let [lessonBeingAdded, setLessonBeingAdded] = useState<number>(0);
+    let [quiz, setQuiz] = useState<Quiz>();
+    let [isQuizBeingEdited, setIsQuizBeingEdited] = useState<boolean>(true);
+    let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if(localStorage.getItem("token") === null) {
@@ -60,9 +64,22 @@ export const CreateCourse = () => {
         }
     }, [lessons]);
 
+    useEffect(() => {
+        if (newCourse !== undefined) {
+            console.log(newCourse)
+            loadQuiz();
+        }
+    }, [newCourse]);
+
     const loadUser = () => {
         getLoggedInUser().then(res => {
             setUser(res.data);
+        })
+    }
+
+    const loadQuiz = () => {
+        getQuizByCourseId(newCourse!.id).then(res => {
+            setQuiz(res.data);
         })
     }
 
@@ -125,6 +142,24 @@ export const CreateCourse = () => {
             setLessonBeingAdded(res.data.id);
             // setLessonBeingAdded(lessons.find(l => l.id === res.data.id));
         })
+    }
+
+    const handleCreateQuiz = () => {
+        createQuiz({
+            title: "",
+            courseId: newCourse!.id
+        }).then(res => {
+            setQuiz(res.data);
+            handleEditQuiz();
+        })
+    }
+
+    const handleEditQuiz = () => {
+        setIsQuizBeingEdited(true);
+    }
+
+    const handleCloseQuiz = () => {
+        setIsQuizBeingEdited(false);
     }
  
     return (<>
@@ -195,16 +230,22 @@ export const CreateCourse = () => {
                 </div>
                 <div className="quiz-info">
                     <span>Quiz</span>
-                    <button>CREATE QUIZ</button>
-                    <div className="quiz-container">
-                    </div>
+                    { !quiz && <button onClick={handleCreateQuiz}>CREATE QUIZ</button> }
+                    { quiz && <button onClick={handleEditQuiz}>EDIT QUIZ</button> }
+                    { isQuizBeingEdited && <button onClick={handleCloseQuiz}>CLOSE QUIZ</button> }
                 </div>
-    
                 <div className="add-section">
                     <button>ADD COURSE</button>
                 </div>
             </div>
         }
-        <Footer></Footer>
+        <Footer/>
+        {(quiz && isQuizBeingEdited) && (
+            <div className="quiz-popup-overlay">
+                <div className="quiz-popup-content" ref={popupRef}>
+                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz}/>
+                </div>
+            </div>
+        )}
     </>);
 }

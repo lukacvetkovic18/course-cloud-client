@@ -83,6 +83,7 @@ export interface Question {
 export interface Answer {
     id: number;
     title: string;
+    isCorrect: boolean;
     question: Question;
 }
 

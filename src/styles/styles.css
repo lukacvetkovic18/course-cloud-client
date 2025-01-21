@@ -1165,3 +1165,31 @@ button:disabled {
     font-size: 15px;
     color: white;
 }
+
+/* ADD QUIZ POPUP */
+
+.quiz-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* cursor: not-allowed; */
+    z-index: 1000;
+    cursor: url("../assets/close-stroke.svg") 12 12, auto;
+}
+
+.quiz-popup-content {
+    background: white;
+    width: 25%;
+    border-radius: 24px;
+    cursor: default;
+}
+
+.add-quiz-popup-container img {
+    height: 20px;
+}
