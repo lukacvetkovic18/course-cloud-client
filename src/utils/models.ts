@@ -26,7 +26,6 @@ export interface Course {
     shortDescription: string;
     description: string;
     isActive: boolean;
-    duration: number;
     image: string;
 }
 
@@ -34,7 +33,6 @@ export interface Enrollment {
     id: number;
     user: User;
     course: Course;
-    progress: number;
 }
 
 export interface Lesson {

@@ -4,9 +4,10 @@ import { Course, Lesson, Quiz, User } from "../../utils/models";
 import { getLessonsByCourseId, getLoggedInUser } from "../../services";
 import { Header } from "../../components/Header";
 import example from "../../assets/add-image.png"
+import plusSign from "../../assets/plus-sign.png"
 import { Footer } from "../../components/Footer";
 import { LessonCard } from "../../components/LessonCard";
-import { createEmptyCourse, getCourseById } from "../../services/courseService";
+import { createEmptyCourse, deleteCourse, getCourseById, updateCourse } from "../../services/courseService";
 import { getFilesByLessonId, getFilesByLessonIds } from "../../services/fileService";
 import { createEmptyLesson } from "../../services/lessonService";
 import { AddQuizPopup } from "../../components/instructor/AddQuizPopup";
@@ -15,21 +16,7 @@ import { createQuiz, getQuizByCourseId } from "../../services/quizService";
 export const CreateCourse = () => {
     const navigate = useNavigate();
 
-    // let [courseData, setCourseData] = useState<{
-    //     title: string;
-    //     shortDescription: string;
-    //     description: string;
-    //     isActive: boolean;
-    //     duration: number;
-    //     image: string;
-    // }>({
-    //     title: "",
-    //     shortDescription: "",
-    //     description: "",
-    //     isActive: false,
-    //     duration: 0,
-    //     image: ""
-    // });
+    // let [pageMode, setPageMode] = useState<string>("");
     let [newCourse, setNewCourse] = useState<Course>();
     let [user, setUser] = useState<User>();
     let [lessons, setLessons] = useState<Lesson[]>([]);
@@ -46,13 +33,15 @@ export const CreateCourse = () => {
         };
         // if(localStorage.getItem("courseId") !== null) {
         //     const courseId = parseInt(localStorage.getItem("courseId")!);
-        //     loadUser();
-        //     loadNewCourse(courseId);
+            loadUser();
+            loadNewCourse(11);
         // } else {
         //     navigate("/my-courses");
         // }
-        loadUser();
-        loadNewCourse();
+
+        // return () => {
+        //     localStorage.removeItem("courseId");
+        // }
     }, []);
 
     useEffect(() => {
@@ -118,8 +107,8 @@ export const CreateCourse = () => {
         });
     };
 
-    const loadNewCourse = () => {
-        getCourseById(11).then(res => {
+    const loadNewCourse = (courseId: number) => {
+        getCourseById(courseId).then(res => {
             setNewCourse(res.data);
             loadLessons();
         })
@@ -161,10 +150,78 @@ export const CreateCourse = () => {
         setIsQuizBeingEdited(true);
     }
 
-    const handleCloseQuiz = () => {
-        setIsQuizBeingEdited(false);
+    // const handleCloseQuiz = () => {
+    //     setIsQuizBeingEdited(false);
+    // }
+ 
+    const saveCourse = () => {
+        const req = {
+            id: newCourse!.id,
+            title: newCourse!.title,
+            shortDescription: newCourse!.shortDescription,
+            description: newCourse!.description,
+            isActive: newCourse!.isActive,
+            image: newCourse!.image || ""
+        }
+        updateCourse(req).then(() => {
+            navigate("/my-courses");
+        })
     }
  
+    const removeCourse = () => {
+        deleteCourse(newCourse!.id).then(() => {
+            navigate("/my-courses");
+        })
+    }
+ 
+    const canSaveCourse = () => {
+        if(newCourse!.title &&
+            newCourse!.shortDescription &&
+            newCourse!.description &&
+            lessons.length > 0 &&
+            quiz) return true;
+
+        return false;
+    }
+
+    const handleFileChange = (event: any) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const image = new Image();
+                image.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        const size = Math.min(image.width, image.height);
+                        const offsetX = (image.width - size) / 2;
+                        const offsetY = (image.height - size) / 2;
+                        // Set the canvas to the desired dimensions
+                        canvas.width = 300;
+                        canvas.height = 200;
+                        // Draw the resized image on the canvas
+                        ctx.drawImage(image, 0, 0, 300, 200);
+                        const base64Image = canvas.toDataURL('image/png');
+                        setNewCourse((course: any) => ({
+                            ...course,
+                            image: base64Image
+                        }));
+                    }
+                };
+                image.src = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setNewCourse((course: any) => ({
+            ...course,
+            image: null
+        }));
+    };
+
     return (<>
         <Header user={user}></Header>
         {
@@ -217,7 +274,9 @@ export const CreateCourse = () => {
                             })
                         }
                         {
-                            !isLessonBeingAdded && <button onClick={addLesson}>+</button>
+                            !isLessonBeingAdded && <button onClick={addLesson} className="add-lesson-btn">
+                                <img src={plusSign}/>
+                            </button>
                         }
                         {
                             (lessonBeingAdded && isLessonBeingAdded) && <LessonCard
@@ -233,12 +292,15 @@ export const CreateCourse = () => {
                 </div>
                 <div className="quiz-info">
                     <span>Quiz</span>
-                    { !quiz && <button onClick={handleCreateQuiz}>CREATE QUIZ</button> }
-                    { quiz && <button onClick={handleEditQuiz}>EDIT QUIZ</button> }
-                    { isQuizBeingEdited && <button onClick={handleCloseQuiz}>CLOSE QUIZ</button> }
+                    <div className="quiz-buttons">
+                        { !quiz && <button onClick={handleCreateQuiz}>CREATE QUIZ</button> }
+                        { quiz && <button onClick={handleEditQuiz}>EDIT QUIZ</button> }
+                        {/* { isQuizBeingEdited && <button onClick={handleCloseQuiz}>CLOSE QUIZ</button> } */}
+                    </div>
                 </div>
                 <div className="add-section">
-                    <button>ADD COURSE</button>
+                    <button onClick={saveCourse} disabled={!canSaveCourse}>SAVE COURSE</button>
+                    <button onClick={removeCourse}>CANCEL</button>
                 </div>
             </div>
         }

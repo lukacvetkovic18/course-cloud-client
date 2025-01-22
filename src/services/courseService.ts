@@ -2,9 +2,10 @@ import { axiosInstance } from "../utils/axiosInstance";
 
 export const createCourse = (course: {
     title: string,
+    shortDescription: string,
     description: string,
     isActive: boolean,
-    duration: number
+    image: string,
 }) => axiosInstance.post("/courses", course);
 
 export const createEmptyCourse = () => axiosInstance.post("/courses/empty");
@@ -16,9 +17,10 @@ export const getCourseById = (id: number) => axiosInstance.get(`/courses/${id}`)
 export const updateCourse = (course: {
     id: number,
     title: string | null,
+    shortDescription: string | null,
     description: string | null,
     isActive: boolean | null,
-    duration: number | null
+    image: string | null,
 }) => axiosInstance.put("/courses", course);
 
 export const deleteAllCourses = () => axiosInstance.delete("/courses");

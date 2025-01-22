@@ -932,6 +932,7 @@ button:disabled {
 .create-course-container .basic-info img {
     height: 200px;
     width: 300px;
+    margin: 20px 0;
 }
 
 .create-course-container .basic-info img:hover {
@@ -991,6 +992,51 @@ button:disabled {
     font-size: 18px;
     margin-bottom: 5px;
 } */
+
+.create-course-container .add-lesson-btn {
+    background-color: #796189;
+    border: none;
+    color: #D9D9D9;
+    border-radius: 50%;
+    margin: 10px 0;
+    padding: 6px 12px;
+    padding-top: 10px;
+    font-size: 18px;
+}
+
+.create-course-container .add-lesson-btn:hover {
+    background-color: #4d3b58;
+}
+
+.create-course-container .add-lesson-btn img {
+    height: 15px;
+}
+
+.create-course-container .add-lesson-btn:hover {
+    background-color: #4d3b58;
+}
+
+.create-course-container .quiz-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.create-course-container .quiz-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.create-course-container .add-section {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
 
 /* LESSON CARD */
 
@@ -1180,7 +1226,6 @@ button:disabled {
     align-items: center;
     /* cursor: not-allowed; */
     z-index: 1000;
-    cursor: url("../assets/close-stroke.svg") 12 12, auto;
 }
 
 .quiz-popup-content {
