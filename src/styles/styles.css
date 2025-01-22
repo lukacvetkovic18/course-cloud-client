@@ -704,6 +704,8 @@ button:disabled {
 
 .my-profile-container .nav-bar {
     margin-bottom: 50px;
+    display: flex;
+    align-items: center;
 }
 
 .my-profile-container .nav-bar span {
@@ -723,6 +725,17 @@ button:disabled {
 
 .my-profile-container .nav-bar .active:hover {
     cursor: default;
+}
+
+.my-profile-container .nav-bar img {
+    margin: 0 20px;
+    height: 30px;
+    opacity: 0.5;
+}
+
+.my-profile-container .nav-bar img:hover {
+    cursor: pointer;
+    opacity: 1;
 }
 
 /* EDIT PROFILE */
@@ -1036,6 +1049,26 @@ button:disabled {
     align-items: center;
     width: 100%;
     margin: 20px 0;
+}
+
+.create-course-container .image-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.create-course-container img {
+    height: 250px;
+    cursor: pointer;
+}
+
+.create-course-container .image-details div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.create-course-container .image-details button {
+    margin: 20px 10px;
 }
 
 /* LESSON CARD */

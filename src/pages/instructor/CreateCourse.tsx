@@ -222,6 +222,11 @@ export const CreateCourse = () => {
         }));
     };
 
+    const triggerFileInput = () => {
+        document.getElementById("fileInput")?.click();
+    };
+
+
     return (<>
         <Header user={user}></Header>
         {
@@ -231,7 +236,22 @@ export const CreateCourse = () => {
                     <span className="subtitle">Create Course</span>
                 </div>
                 <div className="basic-info">
-                    <img src={newCourse!.image || example}/>
+                    <div className="image-details">
+                        <img src={newCourse!.image || example}
+                            onClick={triggerFileInput}
+                        />
+                        <div>
+                            <input
+                                type="file"
+                                id="fileInput"
+                                style={{ display: "none" }}
+                                onChange={handleFileChange}
+                                accept="image/*"
+                            />
+                            <button onClick={triggerFileInput}>Upload image</button>
+                            {newCourse.image && <button onClick={removeImage}>Remove image</button>}
+                        </div>
+                    </div>
                     <input
                         className="title-input"
                         value={newCourse!.title}

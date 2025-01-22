@@ -7,6 +7,7 @@ import phoneIcon from "../assets/phone-icon.png"
 import locationIcon from "../assets/location-icon.png"
 import dobIcon from "../assets/dob-icon.png"
 import genderIcon from "../assets/gender-icon.png"
+import logoutIcon from "../assets/logout.png"
 import { useNavigate, useParams } from "react-router";
 import { Course, User } from "../utils/models";
 import { getInstructorCourses, getLoggedInUser, getUserById } from "../services";
@@ -45,6 +46,10 @@ export const MyProfile = () => {
         })
     }
 
+    const logout = () => {
+
+    }
+
     const render = () => {
         if(profileState === MyProfileState.VIEW) {
             return (
@@ -76,6 +81,7 @@ export const MyProfile = () => {
                     <span className={(profileState === MyProfileState.VIEW ? 'active' : '')} onClick={() => setProfileState(MyProfileState.VIEW)}>View</span>
                     <span className={(profileState === MyProfileState.EDIT ? 'active' : '')} onClick={() => setProfileState(MyProfileState.EDIT)}>Edit</span>
                     <span className={(profileState === MyProfileState.QUIZ_RESULTS ? 'active' : '')} onClick={() => setProfileState(MyProfileState.QUIZ_RESULTS)}>Quiz Results</span>
+                    <img src={logoutIcon} onClick={logout}/>
                 </div>
             </div>
             {

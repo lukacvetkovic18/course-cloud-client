@@ -1,8 +1,10 @@
 import { useState } from "react";
 import "../styles"
 import blank  from "../assets/blank-profile-picture.png"
+import { useNavigate } from "react-router";
 
 export const Header = ({user}: any) => {
+    const navigate = useNavigate();
 
     let [searchText, setSearchText] = useState<string>("");
  
@@ -27,17 +29,15 @@ export const Header = ({user}: any) => {
             </div>
             <div className="right">
                 {
-                    user?.userRoles.map((uR:any) => uR.name).includes("student") ?
-                    <span className="redirect-text">My Enrollments</span> :
-                    <span style={{display:"none"}}></span>
+                    user?.userRoles.map((uR:any) => uR.name).includes("student") &&
+                    <span className="redirect-text" onClick={() => navigate("/my-enrollments")}>My Enrollments</span>
                 }
                 {
-                    user?.userRoles.map((uR:any) => uR.name).includes("instructor") ?
-                    <span className="redirect-text">My Courses</span> :
-                    <span style={{display:"none"}}></span>
+                    user?.userRoles.map((uR:any) => uR.name).includes("instructor") &&
+                    <span className="redirect-text" onClick={() => navigate("/my-courses")}>My Courses</span>
                 }
                 <span className="user-name">{user?.firstName}</span>
-                <img src={blank} className="profile-picture"/>
+                <img src={user?.profilePicture || blank} className="profile-picture" onClick={() => navigate("/my-profile")}/>
             </div>
         </div>
         </>);
