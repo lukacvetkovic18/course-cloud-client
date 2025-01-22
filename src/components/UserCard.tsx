@@ -27,8 +27,8 @@ export const UserCard = ({user}: any) => {
     };
 
     const handleProfileClick = (userId: number) => {
-        localStorage.setItem("instructorId", userId.toString());
-        navigate("/instructors/profile");
+        // localStorage.setItem("instructorId", userId.toString());
+        navigate("/instructors/"+userId);
     }
     
     return (<>
