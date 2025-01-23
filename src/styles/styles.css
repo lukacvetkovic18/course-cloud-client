@@ -1428,3 +1428,21 @@ select option:hover{
 .add-quiz-popup-container .answer-item img:hover {
     cursor: pointer;
 }
+
+/* SEARCH RESULTS */
+.search-results-container {
+    margin: 120px 0;
+}
+
+.search-results-container > .all-instructors-container {
+    margin: 20px 0;
+}
+
+.search-results-container > .my-courses-container {
+    margin: 20px 0;
+}
+
+.search-results-container > .subheader > .subtitle {
+    border-bottom: none;
+    font-size: 30px;
+}

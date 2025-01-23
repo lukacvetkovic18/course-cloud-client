@@ -37,9 +37,4 @@ export const isUserOwnerOfCourse = (id: number) => axiosInstance.get(`/courses/i
 
 export const getOwnerOfCourse = (id: number) => axiosInstance.get(`/courses/owner/${id}`);
 
-// axios.post("http://localhost:8080/api/users/login", {
-//     email: "mgkhj@mail.com",
-//     password: "test"
-// }).then((response) => {
-//     localStorage.setItem('token', response.data.token);
-    
+export const getCourseSearchResults = (query: string) => axiosInstance.get(`/courses/search?query=${encodeURIComponent(query)}`);

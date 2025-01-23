@@ -57,9 +57,4 @@ export const getUserRoles = () => axiosInstance.get("/users/roles");
 
 export const getUsersByRole = (role: string) => axiosInstance.get(`/users/role/${role}`);
 
-// axios.post("http://localhost:8080/api/users/login", {
-//     email: "mgkhj@mail.com",
-//     password: "test"
-// }).then((response) => {
-//     localStorage.setItem('token', response.data.token);
-    
+export const getInstructorSearchResults = (query: string) => axiosInstance.get(`/users/search?query=${encodeURIComponent(query)}`);

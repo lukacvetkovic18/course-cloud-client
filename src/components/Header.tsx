@@ -13,6 +13,9 @@ export const Header = ({user}: any) => {
     }
  
     const handleSearchClick = () => {
+        if (searchText.trim()) {
+            navigate(`/search-results?query=${encodeURIComponent(searchText)}`);
+        }
     }
 
     return (<>
@@ -25,7 +28,7 @@ export const Header = ({user}: any) => {
                     onChange={handleSearchChange}
                     placeholder="Search for anything"
                 />
-                <button className="search-button" onClick={handleSearchClick}>Search</button>
+                <button className="search-button" onClick={handleSearchClick} disabled={searchText === ""}>Search</button>
             </div>
             <div className="right">
                 {

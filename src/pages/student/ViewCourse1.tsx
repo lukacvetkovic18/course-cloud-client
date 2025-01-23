@@ -5,7 +5,7 @@ import { getCourseById, getLoggedInUser, isUserEnrolledInCourse, getLessonsByCou
 import { Header, Footer } from "../../components";
 import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
 
-export const ViewCourse = () => {
+export const ViewCourse1 = () => {
     const navigate = useNavigate();
     let [user, setUser] = useState<User>();
     let [courseId, setCourseId] = useState<number>(0);
@@ -81,7 +81,6 @@ export const ViewCourse = () => {
                             />
                         </div>
                         <div className="lesson-content">
-                            {lesson.content}
                         </div>
                     </div>
                 })

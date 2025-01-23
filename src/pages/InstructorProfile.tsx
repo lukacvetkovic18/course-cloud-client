@@ -31,8 +31,6 @@ export const InstructorProfile = () => {
     let [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     let popupRef = useRef<HTMLDivElement>(null);
 
-    // onDestroy()
-
     const loadUser = () => {
         getLoggedInUser().then(res => {
             setUser(res.data);

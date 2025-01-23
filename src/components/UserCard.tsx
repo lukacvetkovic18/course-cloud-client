@@ -35,7 +35,7 @@ export const UserCard = ({user}: any) => {
         <div className="user-card-container">
             <div className="left">
                 <img className="profile-picture"
-                    src={example}
+                    src={user.profilePicture || example}
                     role="link"
                     onClick={() => handleProfileClick(user.id)}
                     alt="User"

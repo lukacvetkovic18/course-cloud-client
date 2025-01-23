@@ -1,4 +1,4 @@
-export { Home, ViewCourse } from "./student";
+export { Home } from "./student";
 export { CreateCourse, MyCourses } from "./instructor"
 export { AllCourses } from "./AllCourses"
 export { AllInstructors } from "./AllInstructors"
