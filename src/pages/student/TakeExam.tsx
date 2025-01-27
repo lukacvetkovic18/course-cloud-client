@@ -30,9 +30,9 @@ export const TakeExam = () => {
             navigate("/my-courses");
         }
 
-        return () => {
-            localStorage.removeItem("quizId");
-        }
+        // return () => {
+        //     localStorage.removeItem("quizId");
+        // }
     }, []);
 
     useEffect(() => {
@@ -140,8 +140,8 @@ export const TakeExam = () => {
             selectedAnswerIds[questionId] = answers;
         });
         const textAnswerRecords: Record<number, string> = {};
-        selectedAnswers.forEach((answers, questionId) => {
-          selectedAnswerIds[questionId] = answers;
+        textAnswers.forEach((answers, questionId) => {
+            textAnswerRecords[questionId] = answers;
         });
   
         const res = await createQuizAttempt(
@@ -169,9 +169,7 @@ export const TakeExam = () => {
 
     return (<>
         <div className="take-quiz-container">
-            <div className="quiz-header">
-                <h2>{quiz?.title}</h2>
-            </div>
+            <span className="subtitle">{quiz?.title}</span>
             <div className="questions-container">
             {
                 questions.length > 0 && questions.map((question: Question) => (
