@@ -70,7 +70,7 @@ export const ViewQuizPopup = ({quiz}: any) => {
     };
 
     return (<>
-        <div className="add-quiz-popup-container">
+        <div className="view-quiz-popup-container">
             <div className="top-section">
                 <span>{quiz.title}</span>
             </div>
@@ -81,17 +81,16 @@ export const ViewQuizPopup = ({quiz}: any) => {
                     <div className="question-item" key={question.id}>
                         <div className="question-header">
                             <div className="title">
-                                !question.isBeingEdited && <>
                                 <span>{question.title}</span>
-                                <span>{question.questionType.name.charAt(0).toUpperCase() + question.questionType.name.slice(1)}</span></>
+                                <span>{question.questionType.name.charAt(0).toUpperCase() + question.questionType.name.slice(1)}</span>
                             </div>
                             <div className="answers-container">
                                 {
-                                    (question.questionType.id === 1 && !question.isBeingEdited) &&
+                                    (question.questionType.id === 1) &&
                                     question.answers.length > 0 && <span className="answer-text">{question.answers[0].title}</span>
                                 }
                                 {
-                                    (question.questionType.id === 2 && !question.isBeingEdited) && (
+                                    (question.questionType.id === 2) && (
                                         question.answers && question.answers.map(answer => (
                                             <label key={answer.id}>
                                                 { answer.isCorrect && <img src={tickSign}/> }
@@ -102,7 +101,7 @@ export const ViewQuizPopup = ({quiz}: any) => {
                                     )
                                 }
                                 {
-                                    (question.questionType.id === 3 && !question.isBeingEdited) && (
+                                    (question.questionType.id === 3) && (
                                         question.answers && question.answers.map(answer => (
                                             <label key={answer.id}>
                                                 { answer.isCorrect && <img src={tickSign}/> }
@@ -114,7 +113,6 @@ export const ViewQuizPopup = ({quiz}: any) => {
                                 }
                             </div>
                         </div>
-
                     </div>
                 ))
             }

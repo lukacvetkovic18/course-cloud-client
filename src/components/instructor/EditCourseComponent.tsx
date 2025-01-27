@@ -30,6 +30,7 @@ export const EditCourseComponent = ({course, setCourse}: any) => {
             navigate("/");
         };
         loadUser();
+        loadLessons();
     }, []);
 
     useEffect(() => {
@@ -40,7 +41,7 @@ export const EditCourseComponent = ({course, setCourse}: any) => {
         if (lessons.length > 0) {
             loadLessonMaterials();
         }
-    }, [lessons.length]);
+    }, [lessons]);
 
     useEffect(() => {
         if (course !== undefined) {
@@ -208,9 +209,6 @@ export const EditCourseComponent = ({course, setCourse}: any) => {
         {
             course && 
             <div className="create-course-container">
-                <div className="subheader">
-                    <span className="subtitle">Create Course</span>
-                </div>
                 <div className="basic-info">
                     <div className="image-details">
                         <img src={course.image || example}

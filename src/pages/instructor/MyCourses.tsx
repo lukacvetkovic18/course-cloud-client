@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Course, User } from "../../utils/models";
 import { getLoggedInUser } from "../../services";
-import { getMyCourses } from "../../services/courseService";
+import { createEmptyCourse, getMyCourses } from "../../services/courseService";
 import { Header } from "../../components/Header";
 import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
 import { Footer } from "../../components/Footer";
@@ -53,6 +53,14 @@ export const MyCourses = () => {
         }
     }
 
+    const handleAddCourseClick = () => {
+        createEmptyCourse().then(res => {
+            localStorage.removeItem("courseId");
+            localStorage.setItem("courseId", res.data.id);
+            navigate("/courses/create");
+        })
+    }
+
     useEffect(() => {
         if (selectedCourse) {
             document.addEventListener('mousedown', handleClickOutside);
@@ -70,7 +78,7 @@ export const MyCourses = () => {
         <div className="my-courses-container">
             <div className="subheader">
                 <span className="subtitle">{user?.firstName}'s courses</span>
-                <button>Add new course</button>
+                <button onClick={handleAddCourseClick}>Add new course</button>
             </div>
             <div className="courses-container">
             {

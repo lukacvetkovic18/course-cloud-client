@@ -6,30 +6,24 @@ import { getQuizByCourseId } from "../services/quizService";
 import { getFilesByLessonIds } from "../services/fileService";
 import example from "../assets/add-image.png"
 import { LessonCard } from "./LessonCard";
+import { ViewQuizPopup } from "./instructor/ViewQuizPopup";
 
 export const ViewCourseComponent = ({course, isOwner}: any) => {
     const navigate = useNavigate();
 
-    let [user, setUser] = useState<User>();
-    let [courseOwner, setCourseOwner] = useState<User>();
+    // let [user, setUser] = useState<User>();
     let [lessons, setLessons] = useState<Lesson[]>([]);
-    let [isLessonBeingAdded, setIsLessonBeingAdded] = useState<boolean>(false);
-    let [lessonBeingAdded, setLessonBeingAdded] = useState<number>(0);
     let [quiz, setQuiz] = useState<Quiz>();
+    let [isQuizOpened, setIsQuizOpened] = useState<boolean>(false);
     let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if(localStorage.getItem("token") === null) {
-            navigate("/");
-        };
-        loadUser();
+        // if(localStorage.getItem("token") === null) {
+        //     navigate("/");
+        // };
+        // loadUser();
         loadLessons();
-        // loadCourseOwner();
     }, []);
-
-    useEffect(() => {
-        // loadLessons();
-    }, [isLessonBeingAdded]);
 
     useEffect(() => {
         if (lessons.length > 0) {
@@ -44,17 +38,11 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
         }
     }, [course]);
 
-    const loadUser = () => {
-        getLoggedInUser().then(res => {
-            setUser(res.data);
-        })
-    }
-
-    const loadCourseOwner = () => {
-        getOwnerOfCourse(course.id).then(res => {
-            setCourseOwner(res.data);
-        })
-    }
+    // const loadUser = () => {
+    //     getLoggedInUser().then(res => {
+    //         setUser(res.data);
+    //     })
+    // }
 
     const loadQuiz = () => {
         getQuizByCourseId(course!.id).then(res => {
@@ -96,28 +84,42 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
     };
 
     const handleCloseQuiz = () => {
-        // setIsQuizBeingEdited(false);
+        setIsQuizOpened(false);
     }
 
     const handleViewQuiz = () => {
-        // setIsQuizBeingEdited(false);
+        setIsQuizOpened(true);
     }
 
     const handleTakeQuiz = () => {
-        // setIsQuizBeingEdited(false);
+        // navigate("/quiz");
     }
+
+    const handleClickOutside = (event: MouseEvent) => {
+        if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+            handleCloseQuiz();
+        }
+    }
+
+    useEffect(() => {
+        if (isQuizOpened) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [isQuizOpened]);
 
     return (<>
         {
             course && 
-            <div className="create-course-container">
-                <div className="subheader">
-                    <span className="subtitle">Create Course</span>
-                </div>
+            <div className="view-course-container">
                 <div className="basic-info">
                     <img src={course.image || example}/>
                     <span>{course.title}</span>
-                    <span>{course.shortDescription}</span>
                     <span>{course.description}</span>
                 </div>
                 <div className="lessons-info">
@@ -131,22 +133,12 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
                                         lesson={lesson}
                                         setLessons={setLessons}
                                         lessonId={null}
-                                        isCreateMode={true}
+                                        isCreateMode={false}
                                         isLessonBeingAdded={false}
                                         setIsLessonBeingAdded={null}
                                     ></LessonCard>
                                 }
                             })
-                        }
-                        {
-                            (lessonBeingAdded && isLessonBeingAdded) && <LessonCard
-                                lesson={null}
-                                setLessons={setLessons}
-                                lessonId={lessonBeingAdded}
-                                isCreateMode={true}
-                                isLessonBeingAdded={lessonBeingAdded}
-                                setIsLessonBeingAdded={setIsLessonBeingAdded}
-                            ></LessonCard>
                         }
                     </div>
                 </div>
@@ -159,12 +151,12 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
                 </div>
             </div>
         }
-        {/* {(quiz && isQuizBeingEdited) && (
-            <div className="quiz-popup-overlay">
-                <div className="quiz-popup-content" ref={popupRef}>
-                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz} setIsQuizBeingEdited={setIsQuizBeingEdited}/>
+        {(quiz && isQuizOpened) && (
+            <div className="view-quiz-popup-overlay">
+                <div className="view-quiz-popup-content" ref={popupRef}>
+                    <ViewQuizPopup quiz={quiz}/>
                 </div>
             </div>
-        )} */}
+        )}
     </>);
 }

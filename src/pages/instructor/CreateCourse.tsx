@@ -31,17 +31,17 @@ export const CreateCourse = () => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
-        // if(localStorage.getItem("courseId") !== null) {
-        //     const courseId = parseInt(localStorage.getItem("courseId")!);
+        if(localStorage.getItem("courseId") !== null) {
+            const courseId = parseInt(localStorage.getItem("courseId")!);
             loadUser();
-            loadNewCourse(11);
-        // } else {
-        //     navigate("/my-courses");
-        // }
+            loadNewCourse(courseId);
+        } else {
+            navigate("/my-courses");
+        }
 
-        // return () => {
-        //     localStorage.removeItem("courseId");
-        // }
+        return () => {
+            localStorage.removeItem("courseId");
+        }
     }, []);
 
     useEffect(() => {
@@ -100,11 +100,12 @@ export const CreateCourse = () => {
     };
 
     const loadLessons = () => {
-        getLessonsByCourseId(11).then(res => {
+        if(newCourse){
+        getLessonsByCourseId(newCourse.id).then(res => {
             setLessons(res.data);
         }).catch(error => {
             console.error("Failed to load lessons:", error);
-        });
+        });}
     };
 
     const loadNewCourse = (courseId: number) => {
@@ -127,12 +128,13 @@ export const CreateCourse = () => {
     }
 
     const addLesson = () => {
-        createEmptyLesson({courseId: 11}).then(res => {
+        if(newCourse){
+        createEmptyLesson({courseId: newCourse.id}).then(res => {
             // setLessons((prevLessons: Lesson[]) => [...prevLessons, res.data]);
             setIsLessonBeingAdded(true);
             setLessonBeingAdded(res.data.id);
             // setLessonBeingAdded(lessons.find(l => l.id === res.data.id));
-        })
+        })}
     }
 
     const handleCreateQuiz = () => {

@@ -259,7 +259,7 @@ export const LessonCard = ({lesson, setLessons, lessonId, isCreateMode, isLesson
                         <span className="lesson-title" onClick={toggleIsExpanded}>{ lesson.title }</span>
                         <div className="buttons">
                             {
-                                (isCreateMode || isOwner) && <>
+                                isCreateMode && <>
                                     <button className="remove-btn" onClick={removeLesson}>
                                         <img src={minusSign}/>
                                     </button>
