@@ -3,6 +3,7 @@ import { AllCourses, AllInstructors, CreateCourse, Home, InstructorProfile, Land
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SearchResults from './pages/SearchResults';
 import { ViewCourse } from './pages/ViewCourse';
+import { TakeExam } from './pages/student/TakeExam';
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 					<Route path="/courses/create" element={<CreateCourse />} />
 					<Route path="/courses/:slug" element={<ViewCourse />} />
                     <Route path="/search-results" element={<SearchResults />} />
+                    <Route path="/quiz" element={<TakeExam />} />
 				</Routes>
 			</Router>
 		</>

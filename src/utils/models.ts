@@ -92,3 +92,21 @@ export interface UserAnswer {
     question: Question;
     isCorrect: boolean;
 }
+
+export interface QuizAttempt {
+    id: number;
+    user: User;
+    quiz: Quiz;
+    score: number;
+    totalQuestions: number;
+    correctAnswers: number;
+}
+
+export interface QuizAttemptAnswer {
+    id: number;
+    quizAttempt: QuizAttempt;
+    question: Question;
+    selectedAnswer: Answer;
+    textAnswer: string;
+    isCorrect: boolean;
+}

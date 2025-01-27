@@ -92,7 +92,8 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
     }
 
     const handleTakeQuiz = () => {
-        // navigate("/quiz");
+        localStorage.setItem("quizId", quiz!.id.toString());
+        navigate("/quiz");
     }
 
     const handleClickOutside = (event: MouseEvent) => {
