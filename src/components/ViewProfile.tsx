@@ -7,8 +7,13 @@ import phoneIcon from "../assets/phone-icon.png"
 import locationIcon from "../assets/location-icon.png"
 import dobIcon from "../assets/dob-icon.png"
 import genderIcon from "../assets/gender-icon.png"
+import { User } from "../utils/models";
 
-export const ViewProfile = ({user}: any) => {
+interface ViewProfileProps {
+    user: User;
+}
+
+export const ViewProfile = ({user}: ViewProfileProps) => {
     const openInNewTab = (url: string) => {
         window.open(url, "_blank", "noreferrer");
     };

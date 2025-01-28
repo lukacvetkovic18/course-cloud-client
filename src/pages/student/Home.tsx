@@ -3,6 +3,7 @@ import { Course, User } from "../../utils/models";
 import { getLoggedInUser, getAllCourses } from "../../services";
 import { Header, Footer, RecommendedCourseCard } from "../../components";
 import { useNavigate } from "react-router";
+import { getRandomCourses } from "../../services/courseService";
 
 export const Home = () => {
     const navigate = useNavigate();
@@ -26,7 +27,7 @@ export const Home = () => {
     }
 
     const loadRecommendedCourses = () => {
-        getAllCourses().then(res => {
+        getRandomCourses().then(res => {
             setRecommendedCourses(res.data);
             console.log(recommendedCourses);
         })

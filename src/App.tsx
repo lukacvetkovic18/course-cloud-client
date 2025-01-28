@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SearchResults from './pages/SearchResults';
 import { ViewCourse } from './pages/ViewCourse';
 import { TakeExam } from './pages/student/TakeExam';
+import { MyEnrollments } from './pages/student/MyEnrollments';
 
 function App() {
 	return (
@@ -14,6 +15,7 @@ function App() {
 					<Route path="/home" element={<Home />}/>
 					<Route path="/my-courses" element={<MyCourses />}/>
 					<Route path="/my-profile" element={<MyProfile />}/>
+					<Route path="/my-enrollments" element={<MyEnrollments />}/>
 					<Route path="/courses" element={<AllCourses />}/>
 					<Route path="/instructors" element={<AllInstructors />}/>
 					<Route path="/instructors/:slug" element={<InstructorProfile />} />

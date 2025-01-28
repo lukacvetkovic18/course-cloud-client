@@ -1,12 +1,31 @@
+import { useEffect, useState } from "react";
 import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
+import { Course, User } from "../../utils/models";
+import { getOwnerOfCourse } from "../../services";
 
-export const RecommendedCourseCard = ({course}: any) => {
+interface RecommendedCourseCardProps {
+    course: Course;
+}
+
+export const RecommendedCourseCard = ({course}: RecommendedCourseCardProps) => {
+    let [owner, setOwner] = useState<User>();
+    
+    useEffect(() => {
+        loadOwner();
+    }, [])
+
+
+    const loadOwner = () => {
+        getOwnerOfCourse(course.id).then(res => {
+            setOwner(res.data);
+        })
+    }
+
     return (<>
         <div className="card-container">
-            <img src={example}></img>
+            <img src={course.image || example}></img>
             <h3>{ course.title }</h3>
-            <span className="author">By Luka Cvetkovic</span>
-            <span className="description">{ course.description }</span>
+            {owner && <span className="author">By {owner.firstName + " " + owner.lastName}</span>}
         </div>
     </>);
 }

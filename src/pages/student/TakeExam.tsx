@@ -30,9 +30,9 @@ export const TakeExam = () => {
             navigate("/my-courses");
         }
 
-        // return () => {
-        //     localStorage.removeItem("quizId");
-        // }
+        return () => {
+            localStorage.removeItem("quizId");
+        }
     }, []);
 
     useEffect(() => {

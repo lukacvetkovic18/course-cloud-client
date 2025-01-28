@@ -21,3 +21,7 @@ export const getQuizAttemptAnswersByQuizAttempt = (quizAttemptId: number) => {
 export const getUserAttempts = (userId: number) => {
     return axiosInstance.get<QuizAttempt[]>(`/quiz-attempts/user/${userId}`);
 };
+
+export const getQuizAttemptsByCourseId = (courseId: number) => {
+    return axiosInstance.get<QuizAttempt[]>(`/quiz-attempts/course/${courseId}`);
+};

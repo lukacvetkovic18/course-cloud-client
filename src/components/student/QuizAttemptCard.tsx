@@ -3,21 +3,20 @@ import { QuizAttempt } from "../../utils/models";
 
 interface QuizAttemptCardProps {
     quizAttempt: QuizAttempt;
-    isUsersView: boolean;
     handleAttemptClick: (quizAttempt: QuizAttempt) => void
 }
 
-export const QuizAttemptCard = ({quizAttempt, isUsersView, handleAttemptClick}: QuizAttemptCardProps) => {
+export const QuizAttemptCard = ({quizAttempt, handleAttemptClick}: QuizAttemptCardProps) => {
     return (<>
         <div className="quiz-attempt-card-container" onClick={() => handleAttemptClick(quizAttempt)}>
             <div className="left">
-                { !isUsersView ? <>
+                {/* { !isUsersView ? <>
                     <img src={quizAttempt.user.profilePicture || example} alt="Course" />
                     <h3>{quizAttempt.user.firstName + " " + quizAttempt.user.lastName}</h3>
-                </> : <>
+                </> : <> */}
                     <h2>{quizAttempt.quiz.title}</h2>
-                </>
-                }
+                {/* </>
+                } */}
             </div>
             <div className="right">
                 <span>Result: {+quizAttempt.correctAnswers.toFixed(2) + "/" + quizAttempt.totalQuestions}</span>

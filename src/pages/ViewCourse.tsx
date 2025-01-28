@@ -16,7 +16,7 @@ import { ViewProfile } from "../components/ViewProfile";
 import { EditMyProfile } from "../components/EditMyProfile";
 import { ViewCourseComponent } from "../components/ViewCourseComponent";
 import { EditCourseComponent } from "../components/instructor/EditCourseComponent";
-import { ViewStudentsInCourse } from "../components/instructor/ViewStudentsInCourse";
+import { CourseEnrollments } from "../components/instructor/CourseEnrollments";
 
 export enum CourseState {
     VIEW,
@@ -87,9 +87,7 @@ export const ViewCourse = () => {
             )
         } else {
             return (
-                <div>
-                    <ViewStudentsInCourse user={user} setUser={setUser}></ViewStudentsInCourse>
-                </div>
+                    <CourseEnrollments course={course!}></CourseEnrollments>
             )
         }
     }

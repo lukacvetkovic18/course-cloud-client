@@ -55,7 +55,7 @@ export const MyQuizResults = ({ user }: MyQuizResultsProps) => {
         {
             quizAttempts && quizAttempts.map(quizAttempt => {
                 return <>
-                    <QuizAttemptCard quizAttempt={quizAttempt} isUsersView={true} handleAttemptClick={handleAttemptClick} />
+                    <QuizAttemptCard quizAttempt={quizAttempt} handleAttemptClick={handleAttemptClick} />
                 </>
             })
         }

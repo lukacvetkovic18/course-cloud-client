@@ -51,13 +51,6 @@ export interface FileModel {
     type: string;
 }
 
-export interface LessonCoverage {
-    id: number;
-    user: User;
-    lesson: Lesson;
-    isCovered: boolean;
-}
-
 export interface Quiz {
     id: number;
     title: string;
@@ -83,14 +76,6 @@ export interface Answer {
     title: string;
     isCorrect: boolean;
     question: Question;
-}
-
-export interface UserAnswer {
-    id: number;
-    title: string;
-    user: User;
-    question: Question;
-    isCorrect: boolean;
 }
 
 export interface QuizAttempt {
