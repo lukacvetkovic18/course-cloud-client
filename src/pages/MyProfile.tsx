@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import example from "../assets/blank-profile-picture.png"
-import instagramIcon from "../assets/instagram-icon.png"
-import linkedInIcon from "../assets/linkedin-icon.png"
-import emailIcon from "../assets/email-icon.png"
-import phoneIcon from "../assets/phone-icon.png"
-import locationIcon from "../assets/location-icon.png"
-import dobIcon from "../assets/dob-icon.png"
-import genderIcon from "../assets/gender-icon.png"
 import logoutIcon from "../assets/logout.png"
-import { useNavigate, useParams } from "react-router";
-import { Course, User } from "../utils/models";
-import { getInstructorCourses, getLoggedInUser, getUserById } from "../services";
-import { CourseCard, CoursePopup, Footer, Header } from "../components";
+import { useNavigate } from "react-router";
+import { User } from "../utils/models";
+import { getLoggedInUser } from "../services";
+import { Footer, Header } from "../components";
 import { ViewProfile } from "../components/ViewProfile";
 import { EditMyProfile } from "../components/EditMyProfile";
+import { MyQuizResults } from "../components/student/MyQuizResults";
 
 export enum MyProfileState {
     VIEW,
@@ -65,9 +58,9 @@ export const MyProfile = () => {
             )
         } else {
             return (
-                <div>
-                    <span>QUIZ RESULTS</span>
-                </div>
+                // <div>
+                    <MyQuizResults user={user!}></MyQuizResults>
+                /* </div> */
             )
         }
     }

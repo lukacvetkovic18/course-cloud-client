@@ -1,29 +1,53 @@
 import { useEffect, useState } from "react";
-import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
-import { createQuestion, deleteQuestion, getAllQuestionTypes, getQuestionsByQuizId, updateQuestionWithAnswers } from "../../services/questionService";
-import { Answer, Question, QuestionType, QuizAttempt, QuizAttemptAnswer } from "../../utils/models";
-import { createAnswer, deleteAnswer, deleteAnswersByQuestionId, getAnswersByQuestionIds } from "../../services/answerService";
-import tickSign from "../../assets/tick-sign.png"
-import xSign from "../../assets/x-sign.png"
-import plusSign from "../../assets/plus-sign.png"
-import { updateQuiz } from "../../services";
+import { getQuestionsByQuizId } from "../../services/questionService";
+import { Answer, Question, QuizAttempt, QuizAttemptAnswer } from "../../utils/models";
+import { getAnswersByQuestionIds } from "../../services/answerService";
+import { getQuizAttemptAnswersByQuizAttempt } from "../../services/quizAttemptService";
 
-export const ReviewQuizResultPopup = ({quiz, user}: any) => {
+interface ReviewQuizResultPopupProps {
+    quizAttempt: QuizAttempt;
+}
+
+export const ReviewQuizResultPopup = ({ quizAttempt }: ReviewQuizResultPopupProps) => {
     let [questions, setQuestions] = useState<Question[]>([]);
-    let [quizAttempt, setQuizAttempt] = useState<QuizAttempt | null>(null);
+    // let [quizAttempt, setQuizAttempt] = useState<QuizAttempt | null>(null);
     let [attemptAnswers, setAttemptAnswers] = useState<QuizAttemptAnswer[]>([]);
 
     useEffect(() => {
         loadQuizQuestions();
+        loadQuizAttemptAnswers();
     }, [])
+
     useEffect(() => {
         if (questions.length > 0) {
             loadQuestionAnswers();
         }
     }, [questions.length]);
 
+    // useEffect(() => {
+    //     if (quizAttempt) {
+    //         loadQuizAttemptAnswers();
+    //     }
+    // }, [quizAttempt]);
+
+    // const loadQuizAttempt = () => {
+    //     getQuizAttemptByQuizAndUser(quiz.id, user.id).then(res => {
+    //         setQuizAttempt(res.data);
+    //     }).catch(error => {
+    //         console.error("Failed to load quiz attempt:", error);
+    //     });
+    // };
+
+    const loadQuizAttemptAnswers = () => {
+        getQuizAttemptAnswersByQuizAttempt(quizAttempt!.id).then(res => {
+            setAttemptAnswers(res.data);
+        }).catch(error => {
+            console.error("Failed to load quiz attempt answers:", error);
+        });
+    };
+
     const loadQuizQuestions = () => {
-        getQuestionsByQuizId(quiz.id).then(res => {
+        getQuestionsByQuizId(quizAttempt.quiz.id).then(res => {
             // setQuestions(res.data);
             const questionsWithEmptyAnswers = res.data.map((question: Question) => ({
                 ...question,
@@ -61,48 +85,80 @@ export const ReviewQuizResultPopup = ({quiz, user}: any) => {
         }
     };
 
+    const getUserAnswer = (questionId: number) => {
+        const userAnswers = attemptAnswers.filter(answer => answer.question.id === questionId);
+        if (userAnswers) {
+            if (userAnswers[0].selectedAnswer) {
+                return userAnswers.map(answer => answer.selectedAnswer.title).join(', ');
+            } else if (userAnswers[0].textAnswer) {
+                return userAnswers[0].textAnswer;
+            }
+        }
+        return '';
+    };
+
+    const getCorrectAnswers = (question: Question) => {
+        const correctAnswers = question.answers.filter(answer => answer.isCorrect);
+        return correctAnswers.map(answer => answer.title).join(', ');
+    };
+
     return (<>
         <div className="view-quiz-popup-container">
             <div className="top-section">
-                <span>{quiz.title}</span>
+                <div className="left">
+                    <span>{quizAttempt.quiz.title}</span>
+                    <span><b>{quizAttempt.user.firstName + " " + quizAttempt.user.lastName}</b></span>
+                </div>
+                <div className="right">
+                    <span>Result: {+quizAttempt.correctAnswers.toFixed(2) + "/" + quizAttempt.totalQuestions}</span>
+                    <span className={quizAttempt.score > 50 ? 'green' : 'red'}>{+quizAttempt.score.toFixed(2)} %</span>
+                </div>
             </div>
             <div className="questions-container">
-                <span className="questions-title">Questions:</span>
             {
-                questions.length > 0 && questions.map((question: Question) => (
+                (questions.length > 0 && attemptAnswers.length > 0) && questions.map((question: Question) => (
                     <div className="question-item" key={question.id}>
                         <div className="question-header">
                             <div className="title">
                                 <span>{question.title}</span>
-                                <span>{question.questionType.name.charAt(0).toUpperCase() + question.questionType.name.slice(1)}</span>
                             </div>
                             <div className="answers-container">
                                 {
                                     (question.questionType.id === 1) &&
-                                    question.answers.length > 0 && <span className="answer-text">{question.answers[0].title}</span>
+                                    <input
+                                        className="answer-input"
+                                        value={getUserAnswer(question.id)}
+                                        type="text"
+                                        disabled
+                                    />
                                 }
                                 {
-                                    (question.questionType.id === 2) && (
-                                        question.answers && question.answers.map(answer => (
-                                            <label key={answer.id}>
-                                                { answer.isCorrect && <img src={tickSign}/> }
-                                                { !answer.isCorrect && <img src={xSign}/> }
-                                                <span>{answer.title}</span>
-                                            </label>
-                                        ))
-                                    )
+                                    question.questionType.id === 2 && question.answers.map((answer) => (
+                                        <label key={answer.id}>
+                                            <input
+                                                type="radio"
+                                                checked={getUserAnswer(question.id) === answer.title}
+                                                disabled
+                                            />
+                                            <span>{answer.title}</span>
+                                        </label>
+                                    ))
                                 }
                                 {
-                                    (question.questionType.id === 3) && (
-                                        question.answers && question.answers.map(answer => (
-                                            <label key={answer.id}>
-                                                { answer.isCorrect && <img src={tickSign}/> }
-                                                { !answer.isCorrect && <img src={xSign}/> }
-                                                <span>{answer.title}</span>
-                                            </label>
-                                        ))
-                                    )
+                                    question.questionType.id === 3 && question.answers.map((answer) => (
+                                        <label key={answer.id}>
+                                            <input
+                                                type="checkbox"
+                                                checked={getUserAnswer(question.id).split(', ').includes(answer.title)}
+                                                disabled
+                                            />
+                                            <span>{answer.title}</span>
+                                        </label>
+                                    ))
                                 }
+                                <div className="correct-answer">
+                                    <strong>Correct Answer(s):</strong> {getCorrectAnswers(question)}
+                                </div>
                             </div>
                         </div>
                     </div>

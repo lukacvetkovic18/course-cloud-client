@@ -4,7 +4,6 @@ import { Course, User } from "../../utils/models";
 import { getLoggedInUser } from "../../services";
 import { createEmptyCourse, getMyCourses } from "../../services/courseService";
 import { Header } from "../../components/Header";
-import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
 import { Footer } from "../../components/Footer";
 import { CoursePopup } from "../../components/CoursePopup";
 import { CourseCard } from "../../components/CourseCard";
@@ -85,19 +84,6 @@ export const MyCourses = () => {
                 userCourses && userCourses.map(course => {
                     return <>
                         <CourseCard course={course} handleCourseClick={handleCourseClick} />
-                    {/* <div className="course-container">
-                        <div className="left">
-                        <img src={example} onClick={() => handleCourseClick(course)} alt="Course" />
-                            <div className="course-details">
-                                <h3>{course.title}</h3>
-                                <span>{course.description}</span>
-                            </div>
-                        </div>
-                        <div className="right">
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </div>
-                    </div> */}
                     </>
                 })
             }
