@@ -47,7 +47,7 @@ export const MyProfile = () => {
         if(profileState === MyProfileState.VIEW) {
             return (
                 <div>
-                    <ViewProfile user={user}></ViewProfile>
+                    {user && <ViewProfile user={user}></ViewProfile>}
                 </div>
             )
         } else if(profileState === MyProfileState.EDIT) {

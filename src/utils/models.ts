@@ -13,6 +13,7 @@ export interface User {
     instagram: string;
     linkedIn: string;
     userRoles: UserRole[];
+    createdAt: Date;
 }
 
 export interface UserRole {
@@ -27,6 +28,8 @@ export interface Course {
     description: string;
     isActive: boolean;
     image: string;
+    owner: User;
+    createdAt: Date;
 }
 
 export interface Enrollment {
@@ -55,6 +58,8 @@ export interface Quiz {
     id: number;
     title: string;
     course: Course;
+    createdAt: Date;
+    questions: Question[];
 }
 
 export interface QuestionType {
