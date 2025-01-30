@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles"
 import blank  from "../assets/blank-profile-picture.png"
+import userIcon from "../assets/user-header-icon.png"
 import { useNavigate } from "react-router";
 import { User } from "../utils/models";
 import { AdminPanelState } from "./AdminPanel";
@@ -13,18 +14,6 @@ interface HeaderProps {
 
 export const Header = ({user, adminPanelState, setAdminPanelState}: HeaderProps) => {
     const navigate = useNavigate();
-
-    let [searchText, setSearchText] = useState<string>("");
- 
-    const handleSearchChange = (e: any) => {
-        setSearchText(e.target.value);
-    }
- 
-    const handleSearchClick = () => {
-        if (searchText.trim()) {
-            navigate(`/search-results?query=${encodeURIComponent(searchText)}`);
-        }
-    }
 
     return (<>
         <div className="header-container">
@@ -39,6 +28,7 @@ export const Header = ({user, adminPanelState, setAdminPanelState}: HeaderProps)
                 </div>
             </div>
             <div className="right">
+                <img src={userIcon} className="profile-picture" onClick={() => navigate("/home")}/>
                 <span className="user-name">{user.firstName}</span>
                 <img src={user.profilePicture || blank} className="profile-picture" onClick={() => navigate("/my-profile")}/>
             </div>

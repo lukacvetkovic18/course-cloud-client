@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Course, User } from "../utils/models";
-import { getLoggedInUser, getAllCourses } from "../services";
+import { User } from "../utils/models";
+import { getLoggedInUser } from "../services";
 import { useNavigate } from "react-router";
 import { Header } from "./Header";
+import { ManageCourses } from "./panelStates/ManageCourses";
 
 export enum AdminPanelState {
     USERS,
@@ -29,15 +30,33 @@ export const AdminPanel = () => {
             setUser(res.data);
         })
     }
+
+    const render = () => {
+        if(adminPanelState === AdminPanelState.COURSES) {
+            return (
+                <ManageCourses/>
+            )
+        // } else if(adminPanelState === AdminPanelState.EDIT) {
+        //     return (
+        //         <div>
+        //             <EditMyProfile user={user} setUser={setUser}></EditMyProfile>
+        //         </div>
+        //     )
+        // } else {
+        //     return (
+        //         // <div>
+        //             <MyQuizResults user={user!}></MyQuizResults>
+        //         /* </div> */
+        //     )
+        }
+    }
  
     return (<>
         {user && <Header user={user} adminPanelState={adminPanelState} setAdminPanelState={setAdminPanelState}></Header>}
-        <div className="home-container">
-            <span className="subtitle">Reccomended courses</span>
-            <div className="cards-container">
-            {
-            }
-            </div>
+        <div className="admin-panel-container">
+        {
+            render()
+        }
         </div>
     </>);
 }

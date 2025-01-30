@@ -5,6 +5,7 @@ import SearchResults from './pages/SearchResults';
 import { ViewCourse } from './pages/ViewCourse';
 import { TakeExam } from './pages/student/TakeExam';
 import { MyEnrollments } from './pages/student/MyEnrollments';
+import { AdminPanel } from './admin/AdminPanel';
 
 function App() {
 	return (
@@ -23,6 +24,7 @@ function App() {
 					<Route path="/courses/:slug" element={<ViewCourse />} />
                     <Route path="/search-results" element={<SearchResults />} />
                     <Route path="/quiz" element={<TakeExam />} />
+                    <Route path="/admin" element={<AdminPanel />} />
 				</Routes>
 			</Router>
 		</>

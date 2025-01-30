@@ -1950,3 +1950,13 @@ select option:hover{
     border-radius: 24px;
     cursor: default;
 }
+
+/* ADMIN PANEL */
+.admin-panel-container {
+    margin-top: 120px;
+}
+
+/*ADMIN PANEL HEADER*/
+.header-container .nav-bar {
+
+}
