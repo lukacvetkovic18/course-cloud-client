@@ -74,3 +74,5 @@ export const getStudentsInCourse = (id: number) => axiosInstance.get<User[]>(`/c
 export const getCourseSearchResults = (query: string) => axiosInstance.get(`/courses/search?query=${encodeURIComponent(query)}`);
 
 export const getRandomCourses = () => axiosInstance.get<Course[]>(`/courses/random`);
+
+export const getCoursesWithoutQuiz = () => axiosInstance.get<Course[]>("/courses/without-quiz");

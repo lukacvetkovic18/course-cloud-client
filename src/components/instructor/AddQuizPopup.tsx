@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
 import { createQuestion, deleteQuestion, getAllQuestionTypes, getQuestionsByQuizId, updateQuestionWithAnswers } from "../../services/questionService";
 import { Answer, Question, QuestionType } from "../../utils/models";
 import { createAnswer, deleteAnswer, deleteAnswersByQuestionId, getAnswersByQuestionIds } from "../../services/answerService";

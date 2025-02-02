@@ -19,7 +19,7 @@ export const Header = ({user, adminPanelState, setAdminPanelState}: HeaderProps)
         <div className="header-container">
             <div className="left">
                 <span className="title">CourseCloud</span>
-                <span>ADMIN PANEL</span>
+                <span className="admin-text">ADMIN PANEL</span>
                 <div className="nav-bar">
                     <span className={(adminPanelState === AdminPanelState.USERS ? 'active' : '')} onClick={() => setAdminPanelState(AdminPanelState.USERS)}>USERS</span>
                     <span className={(adminPanelState === AdminPanelState.COURSES ? 'active' : '')} onClick={() => setAdminPanelState(AdminPanelState.COURSES)}>COURSES</span>
@@ -28,7 +28,7 @@ export const Header = ({user, adminPanelState, setAdminPanelState}: HeaderProps)
                 </div>
             </div>
             <div className="right">
-                <img src={userIcon} className="profile-picture" onClick={() => navigate("/home")}/>
+                <img src={userIcon} className="switch-icon" onClick={() => navigate("/home")}/>
                 <span className="user-name">{user.firstName}</span>
                 <img src={user.profilePicture || blank} className="profile-picture" onClick={() => navigate("/my-profile")}/>
             </div>

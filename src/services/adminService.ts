@@ -10,14 +10,14 @@ export const createUser = (user: {
     password: string,
     dateOfBirth: Date,
     gender: string,
-    address?: string,
-    isActive: string,
-    profilePicture?: string,
-    phoneNumber?: string,
-    instagram?: string,
-    linkedIn?: string,
+    address: string | null,
+    isActive: boolean,
+    profilePicture: string | null,
+    phoneNumber: string | null,
+    instagram: string | null,
+    linkedIn: string | null,
     userRoleIds: number[],
-    slug?: string
+    slug: string | null
 }) => {
     return axiosInstance.post<User>('/admin/users', user);
 };
@@ -32,20 +32,20 @@ export const getUserById = (id: number) => {
 
 export const updateUser = (user: {
     id: number,
-    firstName?: string,
-    lastName?: string,
-    email?: string,
-    password?: string,
-    dateOfBirth?: Date,
-    gender?: string,
-    address?: string,
-    isActive?: string,
-    profilePicture?: string,
-    phoneNumber?: string,
-    instagram?: string,
-    linkedIn?: string,
-    userRoleIds?: number[],
-    slug?: string
+    firstName: string | null,
+    lastName: string | null,
+    email: string | null,
+    password?: string | null,
+    dateOfBirth: Date | null,
+    gender: string | null,
+    address: string | null,
+    isActive: boolean | null,
+    profilePicture: string | null,
+    phoneNumber: string | null,
+    instagram: string | null,
+    linkedIn: string | null,
+    userRoleIds: number[],
+    slug: string | null
 }) => {
     return axiosInstance.put<User>('/admin/users', user);
 };
@@ -65,7 +65,7 @@ export const createCourse = (course: {
     shortDescription: string,
     description: string,
     isActive: boolean,
-    image?: string,
+    image: string | null,
     ownerId: number
 }) => {
     return axiosInstance.post<Course>('/admin/courses', course);
@@ -81,12 +81,12 @@ export const getCourseById = (id: number) => {
 
 export const updateCourse = (course: {
     id: number,
-    title?: string,
-    shortDescription?: string,
-    description?: string,
-    isActive?: boolean,
-    image?: string,
-    ownerId?: number
+    title: string | null,
+    shortDescription: string | null,
+    description: string | null,
+    isActive: boolean | null,
+    image: string | null,
+    ownerId: number | null
 }) => {
     return axiosInstance.put<Course>('/admin/courses', course);
 };
@@ -111,9 +111,16 @@ export const createLesson = (lesson: {
     const formData = new FormData();
     formData.append('courseId', lesson.courseId.toString());
     formData.append('title', lesson.title);
-    lesson.files.forEach((fileRequest, index) => {
-        formData.append(`files[${index}]`, fileRequest.file);
-    });
+    if (lesson.files) {
+        lesson.files.forEach(fileRequest => {
+            formData.append('files', fileRequest.file);  // Append each file individually with the same field name
+        });
+    }
+
+    // Log formData entries to verify files are added correctly
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
     return axiosInstance.post<Lesson>('/admin/lessons', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -131,21 +138,27 @@ export const getLessonById = (id: number) => {
 
 export const updateLesson = (lesson: {
     id: number;
-    courseId?: number;
-    title?: string;
-    files?: {
+    courseId: number | null;
+    title: string | null;
+    files: {
         file: File
-    }[]
+    }[] | null
 }) => {
     const formData = new FormData();
     formData.append('id', lesson.id.toString());
     if (lesson.courseId) formData.append('courseId', lesson.courseId.toString());
     if (lesson.title) formData.append('title', lesson.title);
     if (lesson.files) {
-        lesson.files.forEach((fileRequest, index) => {
-            formData.append(`files[${index}]`, fileRequest.file);
+        lesson.files.forEach(fileRequest => {
+            formData.append('files', fileRequest.file);  // Append each file individually with the same field name
         });
     }
+
+    // Log formData entries to verify files are added correctly
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+
     return axiosInstance.put<Lesson>('/admin/lessons', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -187,15 +200,15 @@ export const getQuizById = (id: number) => {
 };
 
 export const updateQuiz = (quizRequest: {
-    title: string;
-    courseId?: number;
+    title: string | null;
+    courseId: number;
     questions: {
         title: string;
         questionTypeId: number;
         answers: {
             title: string;
             isCorrect: boolean;
-        }[];
+        }[] | null;
     }[];
 }, id: number) => {
     return axiosInstance.put<Quiz>(`/admin/quizzes/${id}`, quizRequest);

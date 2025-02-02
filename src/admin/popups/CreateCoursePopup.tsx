@@ -1,34 +1,45 @@
-import { useEffect, useState } from "react";
-import { Course, User } from "../../utils/models";
+import { useState } from "react";
+import { User } from "../../utils/models";
 import emptyImage from "../../assets/add-image.png"
-import { updateCourse } from "../../services/adminService";
+import { createCourse } from "../../services/adminService";
 
-interface EditCoursePopupProps {
-    course: Course;
+interface CreateCoursePopupProps {
     instructors: User[];
-    closeEditPopup: () => void;
+    closeCreatePopup: () => void;
 }
 
-export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCoursePopupProps) => {
-    let [updatedCourse, setUpdatedCourse] = useState<Course>();
-    
-    useEffect(() => {
-        setUpdatedCourse(course);
-    }, [])
+export const CreateCoursePopup = ({instructors, closeCreatePopup}: CreateCoursePopupProps) => {
+    let [newCourse, setNewCourse] = useState<{
+        title: string;
+        shortDescription: string;
+        description: string;
+        isActive: boolean;
+        image: string | null;
+        owner: User | null;
+    }>({
+        title: "",
+        shortDescription: "",
+        description: "",
+        isActive: false,
+        image: null,
+        owner: null
+    });
 
     const handleChange = (e: any) => {
         const { name, value, type, checked } = e.target;
         const finalValue = type === "checkbox" ? checked : value;
-        setUpdatedCourse((courseInfo: any) => ({
+        setNewCourse((courseInfo: any) => ({
             ...courseInfo,
             [name]: finalValue
         }));
+        console.log(canSaveCourse())
+        // console.log(newCourse)
     };
 
     const handleInstructorChange = (e: any) => {
         const selectedInstructorId = parseInt(e.target.value);
         const selectedInstructor = instructors.find(instructor => instructor.id === selectedInstructorId) || null;
-        setUpdatedCourse((courseInfo: any) => ({
+        setNewCourse((courseInfo: any) => ({
             ...courseInfo,
             owner: selectedInstructor
         }));
@@ -50,7 +61,7 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                         // Draw the resized image on the canvas
                         ctx.drawImage(image, 0, 0, 300, 200);
                         const base64Image = canvas.toDataURL('image/png');
-                        setUpdatedCourse((course: any) => ({
+                        setNewCourse((course: any) => ({
                             ...course,
                             image: base64Image
                         }));
@@ -63,48 +74,33 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
     };
 
     const removeImage = () => {
-        setUpdatedCourse((courseInfo: any) => ({
+        setNewCourse((courseInfo: any) => ({
             ...courseInfo,
             image: ""
         }));
     };
-
-    // const detectChanges = (): Partial<Course> => {
-    //     const changes: any = {};
-    //     for (const key in course) {
-    //         if (course.hasOwnProperty(key) && updatedCourse!.hasOwnProperty(key)) {
-    //             const typedKey = key as keyof Course;
-    //             if (course[typedKey] !== updatedCourse![typedKey]) {
-    //                 changes[typedKey] = updatedCourse![typedKey];
-    //             }
-    //         }
-    //     }
-    //     return changes;
-    // };
     
     const saveCourse = () => {
-        // const changes:any = detectChanges();
-        // changes["id"] = course.id;
-        // console.log(changes);
         const req = {
-            id: updatedCourse!.id,
-            title: (course.title !== updatedCourse!.title) ? updatedCourse!.title : null,
-            shortDescription: (course.shortDescription !== updatedCourse!.shortDescription) ? updatedCourse!.shortDescription : null,
-            description: (course.description !== updatedCourse!.description) ? updatedCourse!.description : null,
-            isActive: (course.isActive !== updatedCourse!.isActive) ? updatedCourse!.isActive : null,
-            image: (course.image !== updatedCourse!.image) ? updatedCourse!.image : null,
-            ownerId: ((updatedCourse!.owner && !course.owner) || (updatedCourse!.owner && course.owner && (course.owner.id !== updatedCourse!.owner.id))) ? updatedCourse!.owner.id : null
+            title: newCourse.title,
+            shortDescription: newCourse.shortDescription ,
+            description: newCourse.description,
+            isActive: newCourse.isActive,
+            image: newCourse.image ? newCourse.image : null,
+            ownerId: newCourse.owner!.id
         }
         console.log(req);
-        updateCourse(req).then(() => {
-            closeEditPopup();
+        createCourse(req).then(() => {
+            closeCreatePopup();
         })
     }
 
     const canSaveCourse = () => {
-        if(course.title &&
-            course.shortDescription &&
-            course.description) return true;
+        if(newCourse.title !== "" &&
+            newCourse.shortDescription !== "" &&
+            newCourse.description !== "" &&
+            newCourse.owner
+        ) return true;
 
         return false;
     }
@@ -115,11 +111,11 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
 
     return (<>
         {
-            updatedCourse && 
+            newCourse && 
             <div className="edit-course-popup-container">
                 <div className="basic-info">
                     <div className="image-details">
-                        <img src={updatedCourse.image || emptyImage} onClick={triggerFileInput} />
+                        <img src={newCourse.image || emptyImage} onClick={triggerFileInput} />
                         <div>
                             <input
                                 type="file"
@@ -129,12 +125,12 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                                 accept="image/*"
                             />
                             <button onClick={triggerFileInput}>Upload image</button>
-                            {updatedCourse.image && <button onClick={removeImage}>Remove image</button>}
+                            {newCourse.image && <button onClick={removeImage}>Remove image</button>}
                         </div>
                     </div>
                     <input
                         className="title-input"
-                        value={updatedCourse.title}
+                        value={newCourse.title}
                         type="text"
                         placeholder="Title"
                         onChange={handleChange}
@@ -142,14 +138,14 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                     />
                     <textarea
                         className="short-description-input"
-                        value={updatedCourse.shortDescription}
+                        value={newCourse.shortDescription}
                         placeholder="Short Description"
                         onChange={handleChange}
                         name="shortDescription"
                     />
                     <textarea
                         className="description-input"
-                        value={updatedCourse.description}
+                        value={newCourse.description}
                         placeholder="Description"
                         onChange={handleChange}
                         name="description"
@@ -158,7 +154,7 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                     <span className="owner-text">Owner:</span>
                     <select
                         name="ownerId"
-                        value={updatedCourse.owner ? updatedCourse.owner.id : -1}
+                        value={newCourse.owner ? newCourse.owner.id : -1}
                         onChange={handleInstructorChange}
                     >
                     <option value={-1}>
@@ -175,7 +171,7 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                         <input
                             className="active-input"
                             type="checkbox"
-                            checked={updatedCourse.isActive}
+                            checked={newCourse.isActive}
                             onChange={handleChange}
                             name="isActive"
                         />
@@ -183,8 +179,8 @@ export const EditCoursePopup = ({course, instructors, closeEditPopup}: EditCours
                     </label>
                 </div>
                 <div className="add-section">
-                    <button onClick={saveCourse} disabled={!canSaveCourse}>SAVE COURSE</button>
-                    <button onClick={closeEditPopup}>CANCEL</button>
+                    <button onClick={saveCourse} disabled={!canSaveCourse()}>SAVE COURSE</button>
+                    <button onClick={closeCreatePopup}>CANCEL</button>
                 </div>
             </div>
         }

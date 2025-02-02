@@ -15,9 +15,9 @@ export const ManageCourseCard = ({course, handleEditClick, handleDeleteClick}: M
     return (<>
         <div className="manage-card-container">
             <span>{course.title}</span>
-            {course.owner && <span>{course.owner.firstName + " " + course.owner.lastName}</span>}
-            <span>{course.createdAt.toLocaleString('en-GB', { timeZone: 'Europe/Zagreb'})}</span>
-            <span>{course.isActive}</span>
+            {course.owner ? <span>{course.owner.firstName + " " + course.owner.lastName}</span>: <span></span>}
+            <span>{new Date(course.createdAt).toLocaleDateString()}</span>
+            <span>{course.isActive ? "Active" : "Disabled"}</span>
             <div className="buttons">
                 <button onClick={() => handleEditClick(course)}>Edit</button>
                 <button onClick={() => handleDeleteClick(course)}>Delete</button>

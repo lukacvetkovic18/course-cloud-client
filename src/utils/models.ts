@@ -7,13 +7,14 @@ export interface User {
     dateOfBirth: Date;
     gender: string;
     address: string;
-    isActive: string;
+    isActive: boolean;
     profilePicture: string;
     phoneNumber: string;
     instagram: string;
     linkedIn: string;
     userRoles: UserRole[];
     createdAt: Date;
+    slug: string;
 }
 
 export interface UserRole {
@@ -42,16 +43,18 @@ export interface Lesson {
     id: number;
     course: Course;
     title: string;
-    description: string;
     materials: FileModel[];
-    lessonOrder: number;
+    files: FileModel[];
     isExpanded: boolean;
+    createdAt: Date;
 }
 
 export interface FileModel {
     id: number;
     name: string;
     type: string;
+    data: Uint8Array;
+    createdAt: string;
 }
 
 export interface Quiz {

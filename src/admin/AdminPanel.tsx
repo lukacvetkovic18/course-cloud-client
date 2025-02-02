@@ -4,6 +4,9 @@ import { getLoggedInUser } from "../services";
 import { useNavigate } from "react-router";
 import { Header } from "./Header";
 import { ManageCourses } from "./panelStates/ManageCourses";
+import { ManageLessons } from "./panelStates/ManageLessons";
+import { ManageQuizzes } from "./panelStates/ManageQuizzes";
+import { ManageUsers } from "./panelStates/ManageUsers";
 
 export enum AdminPanelState {
     USERS,
@@ -32,22 +35,22 @@ export const AdminPanel = () => {
     }
 
     const render = () => {
-        if(adminPanelState === AdminPanelState.COURSES) {
+        if(adminPanelState === AdminPanelState.USERS) {
+            return (
+                <ManageUsers/>
+            )
+        } else if(adminPanelState === AdminPanelState.COURSES) {
             return (
                 <ManageCourses/>
             )
-        // } else if(adminPanelState === AdminPanelState.EDIT) {
-        //     return (
-        //         <div>
-        //             <EditMyProfile user={user} setUser={setUser}></EditMyProfile>
-        //         </div>
-        //     )
-        // } else {
-        //     return (
-        //         // <div>
-        //             <MyQuizResults user={user!}></MyQuizResults>
-        //         /* </div> */
-        //     )
+        } else if(adminPanelState === AdminPanelState.LESSONS) {
+            return (
+                <ManageLessons/>
+            )
+        } else {
+            return (
+                <ManageQuizzes/>
+            )
         }
     }
  
