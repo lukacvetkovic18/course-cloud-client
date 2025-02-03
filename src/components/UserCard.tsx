@@ -26,9 +26,9 @@ export const UserCard = ({user}: any) => {
         window.open(url, "_blank", "noreferrer");
     };
 
-    const handleProfileClick = (userId: number) => {
+    const handleProfileClick = () => {
         // localStorage.setItem("instructorId", userId.toString());
-        navigate("/instructors/"+userId);
+        navigate(`/courses/${user.slug}`)
     }
     
     return (<>
@@ -37,46 +37,46 @@ export const UserCard = ({user}: any) => {
                 <img className="profile-picture"
                     src={user.profilePicture || example}
                     role="link"
-                    onClick={() => handleProfileClick(user.id)}
+                    onClick={() => handleProfileClick()}
                     alt="User"
                 />
                 <div className="instructor-details">
                     <h3>{user.firstName} {user.lastName}</h3>
                     <div className="location-section">
                         <img className="icon" src={locationIcon} alt="Location"/>
-                        <span>Osijek, Croatia</span>
+                        <span>{user.address ? user.address : "No location"}</span>
                     </div>
                     <div className="social-section">
-                        <img src={phoneIcon}
+                        {user.phoneNumber && <img src={phoneIcon}
                             className="icon"
                             role="link"
                             onClick={() => window.location.href = `tel:${user.phoneNumber}`}
                             alt="Phone Number"
-                        />
+                        />}
                         <img src={emailIcon}
                             className="icon"
                             role="link"
                             onClick={() => window.location.href = `mailto:${user.email}`}
                             alt="Email"
                         />
-                        <img src={instagramIcon}
+                        {user.instagram && <img src={instagramIcon}
                             className="icon"
                             role="link"
-                            onClick={() => openInNewTab("https://www.instagram.com/")}
+                            onClick={() => openInNewTab(user.instagram)}
                             alt="Instagram"
-                        />
-                        <img src={linkedInIcon}
+                        />}
+                        {user.linkedIn && <img src={linkedInIcon}
                             className="icon"
                             role="link"
-                            onClick={() => openInNewTab("https://www.linkedin.com/")}
+                            onClick={() => openInNewTab(user.linkedIn)}
                             alt="LinkedIn"
-                        />
+                        />}
                     </div>
                 </div>
             </div>
             {
                 isLoggedIn && <div className="right">
-                    <button>Manage</button>
+                    <button onClick={() => navigate("/my-profile")}>Manage</button>
                 </div>
             }
         </div>

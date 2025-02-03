@@ -7,8 +7,11 @@ import "../styles"
 import { UserRole } from "../utils/models";
 import DatePicker from "react-datepicker";
 
+interface RegisterProps {
+    setPageState:  React.Dispatch<React.SetStateAction<LandingPageState>>;
+}
 
-export const Register = ({pageState, setPageState}: any) => {
+export const Register = ({setPageState}: RegisterProps) => {
     const navigate = useNavigate();
 
     let [userInfo, setUserInfo] = useState<{
@@ -16,7 +19,7 @@ export const Register = ({pageState, setPageState}: any) => {
         lastName: string,
         email: string,
         password: string,
-        dateOfBirth: Date,
+        dateOfBirth: Date | null,
         gender: string,
         isActive: boolean,
         userRoleIds: number[]
@@ -25,7 +28,7 @@ export const Register = ({pageState, setPageState}: any) => {
         lastName: "",
         email: "",
         password: "",
-        dateOfBirth: new Date(),
+        dateOfBirth: null,
         gender: "",
         isActive: false,
         userRoleIds: []
@@ -67,7 +70,7 @@ export const Register = ({pageState, setPageState}: any) => {
             lastName: userInfo.lastName,
             email: userInfo.email,
             password: userInfo.password,
-            dateOfBirth: userInfo.dateOfBirth,
+            dateOfBirth: userInfo.dateOfBirth!,
             gender: selectedGender,
             isActive: true,
             userRoleIds: userIds
@@ -107,11 +110,23 @@ export const Register = ({pageState, setPageState}: any) => {
         setSelectedUserRole(+(e.target.value));
     }
 
+    const validateEmail = (email: string) => {
+        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        return regex.test(email);
+    }
+
+    const validatePassword = (password: string) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        return regex.test(password);
+    }
+
     const canRegister = () => {
         if( userInfo.firstName !== "" &&
             userInfo.lastName !== "" &&
             userInfo.email !== "" &&
             userInfo.password !== "" &&
+            validateEmail(userInfo.email) &&
+            validatePassword(userInfo.password) &&
             userInfo.password === confirmPassword &&
             userInfo.dateOfBirth !== null &&
             selectedGender !== "" &&
@@ -144,6 +159,12 @@ export const Register = ({pageState, setPageState}: any) => {
                         onChange={handleChange}
                         name="password"
                     />
+                    {
+                        !validatePassword(userInfo.password) && userInfo.password !== "" &&
+                        <div className="error-message" style={{textWrap: "wrap", textAlign: "center"}}>
+                            Password must be at least 8 <br/>characters long, contain at least one<br/>number, one uppercase letter,<br/>and one lowercase letter.
+                        </div>
+                    }
                 </div>
                 <div className="input-container">
                     <span>Gender:</span>
@@ -187,7 +208,7 @@ export const Register = ({pageState, setPageState}: any) => {
                     />
                     {
                         confirmPassword !== null && confirmPassword !== userInfo.password ?
-                        <div className="error-message">
+                        <div className="error-message" style={{textAlign: "center"}}>
                             Passwords have to match!
                         </div>
                         :
@@ -216,6 +237,12 @@ export const Register = ({pageState, setPageState}: any) => {
                         onChange={handleChange}
                         name="email"
                     />
+                    {
+                        !validateEmail(userInfo.email) && userInfo.email !== "" &&
+                        <div className="error-message">
+                            Please enter a valid email address.
+                        </div>
+                    }
                 </div>
                 <div className="input-container">
                     <span>Date of Birth:</span>
@@ -223,6 +250,7 @@ export const Register = ({pageState, setPageState}: any) => {
                         wrapperClassName="datePicker"
                         selected={userInfo.dateOfBirth}
                         onChange={(date) => date ? handleDateChange(date) : console.log("No date selected")}
+                        maxDate={new Date()}
                         name="dateOfBirth"
                     />
                 </div>

@@ -5,6 +5,7 @@ import { getAnswersByQuestionIds } from "../../services/answerService";
 import { getLoggedInUser, getQuizById } from "../../services";
 import { useNavigate } from "react-router";
 import { createQuizAttempt } from "../../services/quizAttemptService";
+import { isUserStudent } from "../../services/userService";
 
 export const TakeExam = () => {
     const navigate = useNavigate();
@@ -22,6 +23,9 @@ export const TakeExam = () => {
     );
 
     useEffect(() => {
+        isUserStudent().then(res => {
+            if(!res.data) navigate("/home")
+        });
         if(localStorage.getItem("quizId") !== null) {
             const quizId = parseInt(localStorage.getItem("quizId")!);
             loadUser();

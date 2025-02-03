@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles"
 import blank  from "../assets/blank-profile-picture.png"
+import adminIcon  from "../assets/admin-header-icon.png"
 import { useNavigate } from "react-router";
+import { isUserAdmin } from "../services/userService";
 
 export const Header = ({user}: any) => {
     const navigate = useNavigate();
 
     let [searchText, setSearchText] = useState<string>("");
+    let [isAdmin, setIsAdmin] = useState<boolean>(false);
  
     const handleSearchChange = (e: any) => {
         setSearchText(e.target.value);
@@ -17,11 +20,16 @@ export const Header = ({user}: any) => {
             navigate(`/search-results?query=${encodeURIComponent(searchText)}`);
         }
     }
+    useEffect(() => {
+        isUserAdmin().then(res=> {
+            setIsAdmin(res.data);
+        })
+    }, []);
 
     return (<>
         <div className="header-container">
             <div className="left">
-                <span className="title">CourseCloud</span>
+                <span className="title" onClick={() => navigate("/home")}>CourseCloud</span>
                 <input
                     type="text"
                     value={searchText}
@@ -39,6 +47,7 @@ export const Header = ({user}: any) => {
                     user?.userRoles.map((uR:any) => uR.name).includes("instructor") &&
                     <span className="redirect-text" onClick={() => navigate("/my-courses")}>My Courses</span>
                 }
+                {isAdmin && <img src={adminIcon} className="switch-icon" onClick={() => navigate("/admin")}/>}
                 <span className="user-name">{user?.firstName}</span>
                 <img src={user?.profilePicture || blank} className="profile-picture" onClick={() => navigate("/my-profile")}/>
             </div>

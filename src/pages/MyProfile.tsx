@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import logoutIcon from "../assets/logout.png"
 import { useNavigate } from "react-router";
 import { User } from "../utils/models";
@@ -31,16 +31,15 @@ export const MyProfile = () => {
     }, [profileState])
 
     let [user, setUser] = useState<User>();
-    let popupRef = useRef<HTMLDivElement>(null);
 
     const loadUser = () => {
         getLoggedInUser().then(res => {
             setUser(res.data);
         })
     }
-
     const logout = () => {
-
+        localStorage.removeItem("token");
+        navigate("/")
     }
 
     const render = () => {
@@ -53,7 +52,7 @@ export const MyProfile = () => {
         } else if(profileState === MyProfileState.EDIT) {
             return (
                 <div>
-                    <EditMyProfile user={user} setUser={setUser}></EditMyProfile>
+                    <EditMyProfile user={user!} setUser={setUser} setProfileState={setProfileState}></EditMyProfile>
                 </div>
             )
         } else {

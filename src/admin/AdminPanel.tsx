@@ -7,6 +7,7 @@ import { ManageCourses } from "./panelStates/ManageCourses";
 import { ManageLessons } from "./panelStates/ManageLessons";
 import { ManageQuizzes } from "./panelStates/ManageQuizzes";
 import { ManageUsers } from "./panelStates/ManageUsers";
+import { isUserAdmin } from "../services/userService";
 
 export enum AdminPanelState {
     USERS,
@@ -26,7 +27,16 @@ export const AdminPanel = () => {
             navigate("/");
         };
         loadUser();
+        loadIsAdmin();
     }, [])
+
+    const loadIsAdmin = () => {
+        isUserAdmin().then(res => {
+            if(!res.data){
+                navigate("/home")
+            }
+        })
+    }
 
     const loadUser = () => {
         getLoggedInUser().then(res => {

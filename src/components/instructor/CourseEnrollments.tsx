@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Course, QuizAttempt, User } from "../../utils/models";
-import { getQuizAttemptsByCourseId, getUserAttempts } from "../../services/quizAttemptService";
-import { getUsersByRole } from "../../services";
+import { getQuizAttemptsByCourseId } from "../../services/quizAttemptService";
 import { getStudentsInCourse } from "../../services/courseService";
 import { ViewProfile } from "../ViewProfile";
-import { QuizAttemptCard } from "../student/QuizAttemptCard";
 import { CourseEnrollmentCard } from "./CourseEnrollmentCard";
 import { ReviewQuizResultPopup } from "../student/ReviewQuizResultPopup";
 

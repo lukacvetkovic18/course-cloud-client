@@ -1,22 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import example from "../assets/blank-profile-picture.png"
-import instagramIcon from "../assets/instagram-icon.png"
-import linkedInIcon from "../assets/linkedin-icon.png"
-import emailIcon from "../assets/email-icon.png"
-import phoneIcon from "../assets/phone-icon.png"
-import locationIcon from "../assets/location-icon.png"
-import dobIcon from "../assets/dob-icon.png"
-import genderIcon from "../assets/gender-icon.png"
-import logoutIcon from "../assets/logout.png"
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Course, User } from "../utils/models";
-import { getCourseById, getInstructorCourses, getLoggedInUser, getUserById, isUserOwnerOfCourse } from "../services";
-import { CourseCard, CoursePopup, Footer, Header } from "../components";
-import { ViewProfile } from "../components/ViewProfile";
-import { EditMyProfile } from "../components/EditMyProfile";
+import { getLoggedInUser, isUserOwnerOfCourse } from "../services";
+import { Footer, Header } from "../components";
 import { ViewCourseComponent } from "../components/ViewCourseComponent";
 import { EditCourseComponent } from "../components/instructor/EditCourseComponent";
 import { CourseEnrollments } from "../components/instructor/CourseEnrollments";
+import { getCourseBySlug } from "../services/courseService";
 
 export enum CourseState {
     VIEW,
@@ -33,13 +23,16 @@ export const ViewCourse = () => {
     let [user, setUser] = useState<User>();
     let [course, setCourse] = useState<Course>();
     let [isOwner, setIsOwner] = useState<boolean>(false);
-    let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
-        loadCourse(parseInt(slug!));
+        if(slug) {
+            loadCourse(slug);
+        } else {
+            navigate("/courses");
+        }
         loadUser();
     }, [slug]);
     
@@ -57,8 +50,8 @@ export const ViewCourse = () => {
         })
     }
 
-    const loadCourse = (courseId: number) => {
-        getCourseById(courseId).then(res => {
+    const loadCourse = (courseSlug: string) => {
+        getCourseBySlug(courseSlug).then(res => {
             setCourse(res.data);
         })
     }
@@ -75,15 +68,11 @@ export const ViewCourse = () => {
     const render = () => {
         if(courseState === CourseState.VIEW) {
             return (
-                <div>
-                    <ViewCourseComponent course={course} isOwner={isOwner}></ViewCourseComponent>
-                </div>
+                    <ViewCourseComponent course={course!} isOwner={isOwner}></ViewCourseComponent>
             )
         } else if(courseState === CourseState.EDIT) {
             return (
-                <div>
-                    <EditCourseComponent course={course} setCourse={setCourse}></EditCourseComponent>
-                </div>
+                    <EditCourseComponent course={course!} setCourse={setCourse}></EditCourseComponent>
             )
         } else {
             return (

@@ -31,6 +31,7 @@ export interface Course {
     image: string;
     owner: User;
     createdAt: Date;
+    slug: string;
 }
 
 export interface Enrollment {
@@ -43,7 +44,7 @@ export interface Lesson {
     id: number;
     course: Course;
     title: string;
-    materials: FileModel[];
+    // materials: FileModel[];
     files: FileModel[];
     isExpanded: boolean;
     createdAt: Date;
@@ -53,7 +54,8 @@ export interface FileModel {
     id: number;
     name: string;
     type: string;
-    data: Uint8Array;
+    // data: Uint8Array;
+    file: File;
     createdAt: string;
 }
 

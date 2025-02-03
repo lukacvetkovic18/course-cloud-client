@@ -1,65 +1,59 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { Course, Lesson, Quiz, User } from "../../utils/models";
-import { getLessonsByCourseId, getLoggedInUser } from "../../services";
+import { Lesson, Question, QuestionType, User } from "../../utils/models";
+import { createCourse, createLesson, createQuiz, getLoggedInUser } from "../../services";
 import { Header } from "../../components/Header";
 import example from "../../assets/add-image.png"
 import plusSign from "../../assets/plus-sign.png"
 import { Footer } from "../../components/Footer";
-import { LessonCard } from "../../components/LessonCard";
-import { createEmptyCourse, deleteCourse, getCourseById, updateCourse } from "../../services/courseService";
-import { getFilesByLessonId, getFilesByLessonIds } from "../../services/fileService";
-import { createEmptyLesson } from "../../services/lessonService";
 import { AddQuizPopup } from "../../components/instructor/AddQuizPopup";
-import { createQuiz, getQuizByCourseId } from "../../services/quizService";
+import { ViewLessonCard } from "../../components/ViewLessonCard";
+import { EditLessonCard } from "../../components/instructor/EditLessonCard";
+import { CreateLessonCard } from "../../components/instructor/CreateLessonCard";
+import { getAllQuestionTypes } from "../../services/questionService";
+import { isUserInstructor } from "../../services/userService";
 
 export const CreateCourse = () => {
     const navigate = useNavigate();
 
-    // let [pageMode, setPageMode] = useState<string>("");
-    let [newCourse, setNewCourse] = useState<Course>();
+    let [newCourse, setNewCourse] = useState<{
+        title: string;
+        shortDescription: string;
+        description: string;
+        isActive: boolean;
+        image: string | null;
+    }>({
+        title: "",
+        shortDescription: "",
+        description: "",
+        isActive: true,
+        image: null
+    });
     let [user, setUser] = useState<User>();
-    let [lessons, setLessons] = useState<Lesson[]>([]);
+    let [lessons, setLessons] = useState<Partial<Lesson>[]>([]);
     let [isLessonBeingAdded, setIsLessonBeingAdded] = useState<boolean>(false);
-    let [lessonBeingAdded, setLessonBeingAdded] = useState<number>(0);
-    let [quiz, setQuiz] = useState<Quiz>();
+    let [lessonBeingEdited, setLessonBeingEdited] = useState<Partial<Lesson> | null>(null);
+    let [quiz, setQuiz] = useState<{
+            title: string;
+            questions: Question[];
+        }>({
+            title: "",
+            questions: []
+        });
+    let [questionTypes, setQuestionTypes] = useState<QuestionType[]>([]);
     let [isQuizBeingEdited, setIsQuizBeingEdited] = useState<boolean>(false);
-    let [materialsLoaded, setMaterialsLoaded] = useState<boolean>(false);
     let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
-        if(localStorage.getItem("courseId") !== null) {
-            const courseId = parseInt(localStorage.getItem("courseId")!);
-            loadUser();
-            loadNewCourse(courseId);
-        } else {
-            navigate("/my-courses");
-        }
-
-        return () => {
-            localStorage.removeItem("courseId");
-        }
+        isUserInstructor().then(res => {
+            if(!res.data) navigate("/home")
+        });
+        loadUser();
+        loadQuestionTypes();
     }, []);
-
-    useEffect(() => {
-        loadLessons();
-    }, [isLessonBeingAdded]);
-
-    useEffect(() => {
-        if (lessons.length > 0) {
-            loadLessonMaterials();
-        }
-    }, [lessons.length]);
-
-    useEffect(() => {
-        if (newCourse !== undefined) {
-            console.log(newCourse)
-            loadQuiz();
-        }
-    }, [newCourse]);
 
     const loadUser = () => {
         getLoggedInUser().then(res => {
@@ -67,56 +61,10 @@ export const CreateCourse = () => {
         })
     }
 
-    const loadQuiz = () => {
-        getQuizByCourseId(newCourse!.id).then(res => {
-            setQuiz(res.data);
+    const loadQuestionTypes = () => {
+        getAllQuestionTypes().then(res => {
+            setQuestionTypes(res.data);
         })
-    }
-
-    const loadLessonMaterials = async () => {
-        try {
-            const lessonIds = lessons.map(lesson => lesson.id);
-            const res = await getFilesByLessonIds(lessonIds);
-            const materials = res.data;
-
-            const materialsMap = materials.reduce((acc: any, material: any) => {
-                const lessonId = material.lesson.id;
-                if (!acc[lessonId]) {
-                    acc[lessonId] = [];
-                }
-                acc[lessonId].push(material);
-                return acc;
-            }, {});
-
-            setLessons((prevLessons: Lesson[]) => 
-                prevLessons.map(lesson => 
-                    materialsMap[lesson.id] ? { ...lesson, materials: materialsMap[lesson.id] } : lesson
-                )
-            );
-            setMaterialsLoaded(true);
-        } catch (error) {
-            console.error("Failed to load lesson materials:", error);
-        }
-    };
-
-    const loadLessons = () => {
-        if(newCourse){
-        getLessonsByCourseId(newCourse.id).then(res => {
-            setLessons(res.data);
-        }).catch(error => {
-            console.error("Failed to load lessons:", error);
-        });}
-    };
-
-    const loadNewCourse = (courseId: number) => {
-        getCourseById(courseId).then(res => {
-            setNewCourse(res.data);
-            loadLessons();
-        })
-        // createEmptyCourse().then(res => {
-        //     setNewCourse(res.data)
-        //     console.log(newCourse)
-        // })
     }
  
     const handleChange = (e: any) => {
@@ -127,63 +75,32 @@ export const CreateCourse = () => {
         }))
     }
 
-    const addLesson = () => {
-        if(newCourse){
-        createEmptyLesson({courseId: newCourse.id}).then(res => {
-            // setLessons((prevLessons: Lesson[]) => [...prevLessons, res.data]);
-            setIsLessonBeingAdded(true);
-            setLessonBeingAdded(res.data.id);
-            // setLessonBeingAdded(lessons.find(l => l.id === res.data.id));
-        })}
+    const handleCreateLesson = () => {
+        setIsLessonBeingAdded(true);
     }
 
-    const handleCreateQuiz = () => {
-        createQuiz({
-            title: "",
-            courseId: newCourse!.id
-        }).then(res => {
-            setQuiz(res.data);
-            handleEditQuiz();
-        })
+    const handleFinishCreatingLesson = () => {
+        setIsLessonBeingAdded(false);
+    }
+
+    const handleEditLesson = (lesson: Partial<Lesson>) => {
+        setLessonBeingEdited(lesson);
+    }
+
+    const handleFinishEditingLesson = () => {
+        setLessonBeingEdited(null);
+    }
+
+    const handleDeleteLesson = (lesson: Partial<Lesson>) => {
+        setLessons(prevLessons => prevLessons.filter(l => l.id !== lesson.id));
     }
 
     const handleEditQuiz = () => {
-        console.log(quiz)
         setIsQuizBeingEdited(true);
     }
 
-    // const handleCloseQuiz = () => {
-    //     setIsQuizBeingEdited(false);
-    // }
- 
-    const saveCourse = () => {
-        const req = {
-            id: newCourse!.id,
-            title: newCourse!.title,
-            shortDescription: newCourse!.shortDescription,
-            description: newCourse!.description,
-            isActive: newCourse!.isActive,
-            image: newCourse!.image || ""
-        }
-        updateCourse(req).then(() => {
-            navigate("/my-courses");
-        })
-    }
- 
-    const removeCourse = () => {
-        deleteCourse(newCourse!.id).then(() => {
-            navigate("/my-courses");
-        })
-    }
- 
-    const canSaveCourse = () => {
-        if(newCourse!.title &&
-            newCourse!.shortDescription &&
-            newCourse!.description &&
-            lessons.length > 0 &&
-            quiz) return true;
-
-        return false;
+    const handleCloseQuiz = () => {
+        setIsQuizBeingEdited(false);
     }
 
     const handleFileChange = (event: any) => {
@@ -196,13 +113,8 @@ export const CreateCourse = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
-                        const size = Math.min(image.width, image.height);
-                        const offsetX = (image.width - size) / 2;
-                        const offsetY = (image.height - size) / 2;
-                        // Set the canvas to the desired dimensions
                         canvas.width = 300;
                         canvas.height = 200;
-                        // Draw the resized image on the canvas
                         ctx.drawImage(image, 0, 0, 300, 200);
                         const base64Image = canvas.toDataURL('image/png');
                         setNewCourse((course: any) => ({
@@ -227,7 +139,99 @@ export const CreateCourse = () => {
     const triggerFileInput = () => {
         document.getElementById("fileInput")?.click();
     };
+    
+    const saveCourse = async () => {
+        try {
+            const req = {
+                title: newCourse.title,
+                shortDescription: newCourse.shortDescription,
+                description: newCourse.description,
+                isActive: newCourse.isActive,
+                image: newCourse.image || ""
+            };
 
+            const courseResponse = await createCourse(req);
+            const courseId = courseResponse.data.id;
+
+            const lessonPromises = lessons.map(l => {
+                const lessonReq = {
+                    courseId: courseId,
+                    title: l.title!,
+                    files: l.files!.map(f => ({ file: f.file }))
+                };
+                return createLesson(lessonReq);
+            });
+
+            await Promise.all(lessonPromises);
+
+            const quizReq = {
+                title: quiz.title,
+                courseId: courseId,
+                questions: quiz.questions.map(q => ({
+                    title: q.title,
+                    questionTypeId: q.questionType.id,
+                    answers: q.answers.map(a => ({
+                        title: a.title,
+                        isCorrect: a.isCorrect
+                    }))
+                }))
+            };
+
+            await createQuiz(quizReq);
+
+            navigate("/my-courses");
+        } catch (error) {
+            console.error("Failed to save course:", error);
+            alert("Failed to save course. Please try again.");
+        }
+    };
+
+    // const saveCourse = () => {
+    //     const req = {
+    //         title: newCourse!.title,
+    //         shortDescription: newCourse!.shortDescription,
+    //         description: newCourse!.description,
+    //         isActive: newCourse!.isActive,
+    //         image: newCourse!.image || ""
+    //     }
+    //     createCourse(req).then(async res => {
+    //         lessons.forEach(async l => {
+    //             const lessonReq = {
+    //                 courseId: res.data.id,
+    //                 title: l.title!,
+    //                 files: l.files!.map(f => ({ file: f.file }))
+    //             }
+    //             await createLesson(lessonReq).catch(() => console.log("Failed Lesson save"));
+    //         })
+    //         const quizReq = {
+    //             title: quiz.title,
+    //             courseId: res.data.id,
+    //             questions: quiz.questions.map(q => ({
+    //                 title: q.title,
+    //                 questionTypeId: q.questionType.id,
+    //                 answers: q.answers.map(a => ({
+    //                     title: a.title,
+    //                     isCorrect: a.isCorrect
+    //                 }))
+    //             }))
+    //         }
+    //         await createQuiz(quizReq).catch(() => console.log("Failed Quiz save"));
+    //     })
+    // }
+ 
+    const cancelCourse = () => {
+        navigate("/my-courses");
+    }
+
+    const canSaveCourse = () => {
+        if(newCourse.title &&
+            newCourse.shortDescription &&
+            newCourse.description &&
+            lessons.length > 0 &&
+            quiz) return true;
+
+        return false;
+    }
 
     return (<>
         <Header user={user}></Header>
@@ -280,57 +284,54 @@ export const CreateCourse = () => {
                 <div className="lessons-info">
                     <span className="lessons-title">Lessons</span>
                     <div className="lessons-container">
-                        {
-                            lessons && lessons.map(lesson => {
-                                if(lesson.title) {
-                                    return <LessonCard
-                                        key={lesson.id}
-                                        lesson={lesson}
-                                        setLessons={setLessons}
-                                        lessonId={null}
-                                        isCreateMode={true}
-                                        isLessonBeingAdded={false}
-                                        setIsLessonBeingAdded={null}
-                                    ></LessonCard>
-                                }
-                            })
-                        }
-                        {
-                            !isLessonBeingAdded && <button onClick={addLesson} className="add-lesson-btn">
-                                <img src={plusSign}/>
-                            </button>
-                        }
-                        {
-                            (lessonBeingAdded && isLessonBeingAdded) && <LessonCard
-                                lesson={null}
+                    {
+                        lessons && lessons.map(lesson => {
+                            return (lessonBeingEdited && lessonBeingEdited.id === lesson.id) ?
+                            <EditLessonCard
+                                lesson={lesson}
                                 setLessons={setLessons}
-                                lessonId={lessonBeingAdded}
-                                isCreateMode={true}
-                                isLessonBeingAdded={lessonBeingAdded}
-                                setIsLessonBeingAdded={setIsLessonBeingAdded}
-                            ></LessonCard>
-                        }
+                                handleFinishEditingLesson={handleFinishEditingLesson}
+                            /> :
+                            <ViewLessonCard
+                                key={lesson.id}
+                                lesson={lesson}
+                                handleEditLesson={handleEditLesson}
+                                handleDeleteLesson={handleDeleteLesson}
+                                isAbleToEdit={true}
+                            />
+                        })
+                    }
+                    {
+                        !isLessonBeingAdded ?
+                        <button onClick={handleCreateLesson} disabled={lessonBeingEdited !== null} className="add-lesson-btn">
+                            <img src={plusSign}/>
+                        </button> :
+                        <CreateLessonCard
+                            setLessons={setLessons}
+                            handleFinishCreatingLesson={handleFinishCreatingLesson}
+                        />
+                    }
                     </div>
                 </div>
                 <div className="quiz-info">
                     <span>Quiz</span>
                     <div className="quiz-buttons">
-                        { !quiz && <button onClick={handleCreateQuiz}>CREATE QUIZ</button> }
-                        { quiz && <button onClick={handleEditQuiz}>EDIT QUIZ</button> }
-                        {/* { isQuizBeingEdited && <button onClick={handleCloseQuiz}>CLOSE QUIZ</button> } */}
+                        <button onClick={handleEditQuiz}>
+                            { quiz.title !== "" ? "EDIT" : "CREATE"} QUIZ
+                        </button>
                     </div>
                 </div>
                 <div className="add-section">
-                    <button onClick={saveCourse} disabled={!canSaveCourse}>SAVE COURSE</button>
-                    <button onClick={removeCourse}>CANCEL</button>
+                    <button onClick={saveCourse} disabled={!canSaveCourse()}>SAVE COURSE</button>
+                    <button onClick={cancelCourse}>CANCEL</button>
                 </div>
             </div>
         }
         <Footer/>
-        {(quiz && isQuizBeingEdited) && (
+        {isQuizBeingEdited && (
             <div className="quiz-popup-overlay">
                 <div className="quiz-popup-content" ref={popupRef}>
-                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz} setIsQuizBeingEdited={setIsQuizBeingEdited}/>
+                    <AddQuizPopup quiz={quiz} setQuiz={setQuiz} questionTypes={questionTypes} handleCloseQuiz={handleCloseQuiz}/>
                 </div>
             </div>
         )}

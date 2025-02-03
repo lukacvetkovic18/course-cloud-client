@@ -80,21 +80,6 @@ export const AllCourses = () => {
                 courses && courses.map(course => {
                     return <>
                         <CourseCard course={course} handleCourseClick={handleCourseClick} />
-                    {/* <div className="course-container">
-                        <div className="left">
-                        <img src={example} onClick={() => handleCourseClick(course)} alt="Course" />
-                            <div className="course-details">
-                                <h3>{course.title}</h3>
-                                <span>{course.description}</span>
-                            </div>
-                        </div>
-                        {
-                            courseOwnership[course.id] && <div className="right">
-                                <button>Edit</button>
-                                <button>Delete</button>
-                            </div>
-                        }
-                    </div> */}
                     </>
                 })
             }

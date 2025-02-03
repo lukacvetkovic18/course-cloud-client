@@ -58,3 +58,13 @@ export const getUserRoles = () => axiosInstance.get("/users/roles");
 export const getUsersByRole = (role: string) => axiosInstance.get(`/users/role/${role}`);
 
 export const getInstructorSearchResults = (query: string) => axiosInstance.get(`/users/search?query=${encodeURIComponent(query)}`);
+
+export const isTokenValid = () => axiosInstance.get<boolean>("/users/token-valid");
+
+export const getUserBySlug = (slug: string) => axiosInstance.get(`/users/slug/${slug}`);
+
+export const isUserStudent = () => axiosInstance.get("/users/is-student");
+
+export const isUserInstructor = () => axiosInstance.get("/users/is-instructor");
+
+export const isUserAdmin = () => axiosInstance.get("/users/is-admin");

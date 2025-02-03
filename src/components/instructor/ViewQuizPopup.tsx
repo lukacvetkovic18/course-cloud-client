@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
-import { createQuestion, deleteQuestion, getAllQuestionTypes, getQuestionsByQuizId, updateQuestionWithAnswers } from "../../services/questionService";
-import { Answer, Question, QuestionType } from "../../utils/models";
-import { createAnswer, deleteAnswer, deleteAnswersByQuestionId, getAnswersByQuestionIds } from "../../services/answerService";
+import { getQuestionsByQuizId } from "../../services/questionService";
+import { Answer, Question } from "../../utils/models";
+import { getAnswersByQuestionIds } from "../../services/answerService";
 import tickSign from "../../assets/tick-sign.png"
 import xSign from "../../assets/x-sign.png"
-import plusSign from "../../assets/plus-sign.png"
-import { updateQuiz } from "../../services";
 
 export const ViewQuizPopup = ({quiz}: any) => {
     let [questions, setQuestions] = useState<Question[]>([]);

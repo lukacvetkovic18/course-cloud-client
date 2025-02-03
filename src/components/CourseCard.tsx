@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
-import example from "../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
+import example from "../assets/no-image.png"
 import { isUserOwnerOfCourse } from "../services/courseService";
+import { useNavigate } from "react-router";
+import { Course } from "../utils/models";
 
-export const CourseCard = ({course, handleCourseClick}: any) => {
+interface CoursePopupProps {
+    course: Course
+    handleCourseClick: (course: Course) => void
+}
+
+export const CourseCard = ({course, handleCourseClick}: CoursePopupProps) => {
+    const navigate = useNavigate();
     let [isOwner, setIsOwner] = useState<boolean>(false);
 
     useEffect(() => {
@@ -15,11 +23,15 @@ export const CourseCard = ({course, handleCourseClick}: any) => {
             console.log(isOwner);
         })
     }
+    
+    const handleButtonClick = () => {
+        navigate(`/courses/${course.slug}`)
+    }
 
     return (<>
         <div className="course-container">
             <div className="left">
-            <img src={example} onClick={() => handleCourseClick(course)} alt="Course" />
+            <img src={course.image || example} onClick={() => handleCourseClick(course)} alt="Course" />
                 <div className="course-details">
                     <h3>{course.title}</h3>
                     <span>{course.description}</span>
@@ -27,8 +39,7 @@ export const CourseCard = ({course, handleCourseClick}: any) => {
             </div>
             {
                 isOwner && <div className="right">
-                    <button>Edit</button>
-                    <button>Delete</button>
+                    <button onClick={handleButtonClick}>Manage</button>
                 </div>
             }
         </div>

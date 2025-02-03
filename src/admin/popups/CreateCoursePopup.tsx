@@ -55,10 +55,8 @@ export const CreateCoursePopup = ({instructors, closeCreatePopup}: CreateCourseP
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
-                        // Set the canvas to the desired dimensions
                         canvas.width = 300;
                         canvas.height = 200;
-                        // Draw the resized image on the canvas
                         ctx.drawImage(image, 0, 0, 300, 200);
                         const base64Image = canvas.toDataURL('image/png');
                         setNewCourse((course: any) => ({

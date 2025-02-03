@@ -3,15 +3,18 @@ import example from "../assets/blank-profile-picture.png"
 import DatePicker from "react-datepicker";
 import { User, UserRole } from "../utils/models";
 import { getUserRoles, updateUser } from "../services";
-import { useNavigate } from "react-router";
 import { ChangePasswordPopup } from "./ChangePasswordPopup";
+import { MyProfileState } from "../pages/MyProfile";
 
-export const EditMyProfile = ({user, setUser}: any) => {
-    const navigate = useNavigate();
+interface EditMyProfileProps {
+    user: User;
+    setUser: React.Dispatch<React.SetStateAction<User | undefined>>
+    setProfileState: React.Dispatch<React.SetStateAction<MyProfileState>>
+}
 
+export const EditMyProfile = ({user, setUser, setProfileState}: EditMyProfileProps) => {
+    let [updatedUser, setUpdatedUser] = useState<User>(user);
     let [userRoles, setUserRoles] = useState<UserRole[]>([]);
-    let [selectedGender, setSelectedGender] = useState<string>(user.gender || "");
-    let [selectedUserRole, setSelectedUserRole] = useState<number>(-1);
     let [originalUser, setOriginalUser] = useState<User>();
     let [isPasswordPopupOpened, setIsPasswordPopupOpened] = useState<boolean>(false);
     let popupRef = useRef<HTMLDivElement>(null);
@@ -25,88 +28,81 @@ export const EditMyProfile = ({user, setUser}: any) => {
         getUserRoles().then(res => {
             setUserRoles(res.data)
         })
-        if(!userRoles.find(uR => uR.id === 1000)) {
-            userRoles.push({
-                id: 1000,
-                name: "All roles"
-            })
-        }
-        if(user.userRoles.includes(userRoles.find(uR => uR.name === "student")) && user.userRoles.includes(userRoles.find(uR => uR.name === "instructor"))) {
-            setSelectedUserRole(1000)
-        } else if (user.userRoles.includes(userRoles.find(uR => uR.name === "student"))) {
-            setSelectedUserRole(1);
-        } else {
-            setSelectedUserRole(2);
-        }
     }
  
     const handleChange = (e: any) => {
         const { name, value } = e.target;
-        setUser((uInfo: any) => ({
+        setUpdatedUser((uInfo: any) => ({
             ...uInfo,
             [name]: value
         }))
     }
 
+    const handleRoleChange = (e: any) => {
+        const selectedRoleId = parseInt(e.target.value);
+        if (selectedRoleId === -1) {
+            // "All User Roles" selected
+            setUpdatedUser((userInfo: any) => ({
+                ...userInfo,
+                userRoles: userRoles
+            }));
+        } else {
+            const selectedRole = userRoles.find(role => role.id === selectedRoleId) || null;
+            setUpdatedUser((userInfo: any) => ({
+                ...userInfo,
+                userRoles: selectedRole ? [selectedRole] : []
+            }));
+        }
+    };
+
     const handleDateChange = (date: Date) => {
-        setUser((uInfo: any) => ({
+        setUpdatedUser((uInfo: any) => ({
             ...uInfo,
             dateOfBirth: date
         }))
     }
 
     const handleGenderChange = (e: any) => {
-        setSelectedGender(e.target.value);
-    }
+        const { value } = e.target;
+        setUpdatedUser((userInfo: any) => ({
+            ...userInfo,
+            gender: value
+        }));
+    };
 
-    const handleRolesChange = (e: any) => {
-        userRoles.find((uR: UserRole) => uR.id === +(e.target.value))
-        setSelectedUserRole(+(e.target.value));
-    }
-
-    const detectChanges = () => {
-        const changes: any = {};
-        let temp: any = originalUser;
-        for (const key in originalUser) {
-            if (user[key] !== temp[key]) {
-                changes[key] = user[key];
-            }
-            if (selectedGender !== originalUser["gender"]) {
-                changes["gender"] = selectedGender;
-            }
-            let roleIds: number[] = [];
-            if(selectedUserRole === 1000) {
-                roleIds.push(...userRoles.map(uR => uR.id));
-            } else {
-                roleIds.push(selectedUserRole)
-            }
-            const equalsCheck = (a:any, b:any) => {
-                return JSON.stringify(a) === JSON.stringify(b);
-            }
-            let originalRoleIds: number[] = originalUser.userRoles.map((uR: any) => uR.id)
-            if(!equalsCheck(roleIds, originalRoleIds)) {
-                changes["userRoleIds"] = roleIds;
-            }
+    const saveUser = () => {
+        const req = {
+            id: updatedUser.id,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName,
+            email: updatedUser.email,
+            password: updatedUser.password,
+            dateOfBirth: updatedUser.dateOfBirth,
+            gender: updatedUser.gender,
+            address:  updatedUser.address,
+            isActive: updatedUser.isActive,
+            profilePicture: updatedUser.profilePicture ,
+            phoneNumber: updatedUser.phoneNumber,
+            instagram: updatedUser.instagram,
+            linkedIn: updatedUser.linkedIn,
+            userRoleIds: updatedUser.userRoles.map(r => r.id)
         }
-        return changes;
-    }
- 
-    const saveChanges = (changes: any) => {
-        console.log(changes)
-        changes["id"] = user.id;
-        updateUser(changes).then(() => {
-            navigate("/my-profile");
-        });
+        console.log(req);
+        updateUser(req).then(() => {
+            setUser(updatedUser);
+            setProfileState(MyProfileState.VIEW);
+        })
     }
 
-    const handleSaveChanges = () => {
-        const changes = detectChanges();
-        saveChanges(changes);
-    }
+    const canSaveUser = () => {
+        if(updatedUser.firstName &&
+            updatedUser.lastName &&
+            updatedUser.email &&
+            updatedUser.dateOfBirth &&
+            updatedUser.gender &&
+            updatedUser.userRoles.length > 0) return true;
 
-    const canSaveChanges = () => {
-        const changes = detectChanges();
-        return Object.keys(changes).length !== 0;
+        return false;
     }
 
     const handleFileChange = (event: any) => {
@@ -126,7 +122,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         canvas.height = size;
                         ctx.drawImage(image, offsetX, offsetY, size, size, 0, 0, size, size);
                         const base64Image = canvas.toDataURL('image/png');
-                        setUser((uInfo: any) => ({
+                        setUpdatedUser((uInfo: any) => ({
                             ...uInfo,
                             profilePicture: base64Image
                         }));
@@ -139,7 +135,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
     };
 
     const removeProfilePicture = () => {
-        setUser((uInfo: any) => ({
+        setUpdatedUser((uInfo: any) => ({
             ...uInfo,
             profilePicture: null
         }));
@@ -176,12 +172,12 @@ export const EditMyProfile = ({user, setUser}: any) => {
     }, [isPasswordPopupOpened]);
 
     return (<>
-        { user &&
+        { updatedUser &&
             <div className="edit-profile-container">
                 <div className="upper-section">
                     <div className="image-details">
                         <img className="profile-picture"
-                            src={user.profilePicture || example}
+                            src={updatedUser.profilePicture || example}
                             alt="User"
                             onClick={triggerFileInput}
                         />
@@ -194,14 +190,14 @@ export const EditMyProfile = ({user, setUser}: any) => {
                                 accept="image/*"
                             />
                             <button onClick={triggerFileInput}>Upload image</button>
-                            {user.profilePicture && <button onClick={removeProfilePicture}>Remove image</button>}
+                            {updatedUser.profilePicture && <button onClick={removeProfilePicture}>Remove image</button>}
                         </div>
                     </div>
                     <div className="profile-details">
                         <div className="input-container">
                             <span>First Name:</span>
                             <input
-                                value={user.firstName}
+                                value={updatedUser.firstName}
                                 type="text"
                                 onChange={handleChange}
                                 name="firstName"
@@ -210,7 +206,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>Last Name:</span>
                             <input
-                                value={user.lastName}
+                                value={updatedUser.lastName}
                                 type="text"
                                 onChange={handleChange}
                                 name="lastName"
@@ -219,7 +215,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>Email:</span>
                             <input
-                                value={user.email}
+                                value={updatedUser.email}
                                 type="email"
                                 onChange={handleChange}
                                 name="email"
@@ -233,7 +229,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>Phone Number:</span>
                             <input
-                                value={user.phoneNumber}
+                                value={updatedUser.phoneNumber}
                                 type="text"
                                 onChange={handleChange}
                                 name="phoneNumber"
@@ -242,7 +238,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>Location:</span>
                             <input
-                                value={user.address}
+                                value={updatedUser.address}
                                 type="text"
                                 onChange={handleChange}
                                 name="address"
@@ -251,7 +247,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>Instagram:</span>
                             <input
-                                value={user.instagram}
+                                value={updatedUser.instagram}
                                 type="text"
                                 onChange={handleChange}
                                 name="instagram"
@@ -260,7 +256,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         <div className="input-container">
                             <span>LinkedIn:</span>
                             <input
-                                value={user.linkedIn}
+                                value={updatedUser.linkedIn}
                                 type="text"
                                 onChange={handleChange}
                                 name="linkedIn"
@@ -272,7 +268,7 @@ export const EditMyProfile = ({user, setUser}: any) => {
                             <span>Date of Birth:</span>
                             <DatePicker
                                 wrapperClassName="datePicker"
-                                selected={user.dateOfBirth}
+                                selected={updatedUser.dateOfBirth}
                                 onChange={(date) => date ? handleDateChange(date) : console.log("No date selected")}
                                 name="dateOfBirth"
                             />
@@ -282,19 +278,19 @@ export const EditMyProfile = ({user, setUser}: any) => {
                             <form>
                                 <label className="radio">
                                     <input type="radio" value="male"
-                                        checked={selectedGender === "male"} 
+                                        checked={updatedUser.gender === "male"} 
                                         onChange={handleGenderChange} />
                                     Male
                                 </label>
                                 <label className="radio">
                                     <input type="radio" value="female"
-                                        checked={selectedGender === "female"} 
+                                        checked={updatedUser.gender === "female"} 
                                         onChange={handleGenderChange} />
                                     Female
                                 </label>
                                 <label className="radio">
                                     <input type="radio" value="other"
-                                        checked={selectedGender === "other"} 
+                                        checked={updatedUser.gender === "other"} 
                                         onChange={handleGenderChange} />
                                     Other
                                 </label>
@@ -302,21 +298,22 @@ export const EditMyProfile = ({user, setUser}: any) => {
                         </div>
                         <div className="input-container">
                             <span>Role(s):</span>
-                            <select
-                                value={selectedUserRole}
-                                onChange={handleRolesChange}
-                            >
-                                {
-                                    userRoles.map((userRole) => {
-                                        return <option value={userRole.id} key={userRole.id} onChange={handleRolesChange}>{userRole.name.charAt(0).toUpperCase() + userRole.name.slice(1)}</option>
-                                    })
-                                }
-                                <option value={1000}>All roles</option>
-                            </select>
+                                <select
+                                    name="userRoles"
+                                    value={updatedUser.userRoles.map(role => role.id).length > 1 ? -1 : updatedUser.userRoles[0].id}
+                                    onChange={handleRoleChange}
+                                >
+                                    <option value={-1}>All User Roles</option>
+                                    {userRoles.map((role) => (
+                                        <option key={role.id} value={role.id}>
+                                            {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                                        </option>
+                                    ))}
+                                </select>
                         </div>
                     </div>
                 </div>
-                <button onClick={handleSaveChanges} disabled={!canSaveChanges()}>Save Changes</button>
+                <button onClick={saveUser} disabled={!canSaveUser()}>Save Changes</button>
             </div>
         }
         {isPasswordPopupOpened && (

@@ -1,27 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { Lesson, Quiz, User } from "../utils/models";
-import { getLessonsByCourseId, getLoggedInUser, getOwnerOfCourse, isUserOwnerOfCourse } from "../services";
+import { Course, Lesson, Quiz } from "../utils/models";
+import { getLessonsByCourseId } from "../services";
 import { getQuizByCourseId } from "../services/quizService";
 import { getFilesByLessonIds } from "../services/fileService";
 import example from "../assets/add-image.png"
-import { LessonCard } from "./LessonCard";
 import { ViewQuizPopup } from "./instructor/ViewQuizPopup";
+import { ViewLessonCard } from "./ViewLessonCard";
 
-export const ViewCourseComponent = ({course, isOwner}: any) => {
+interface ViewCourseComponentProps {
+    course: Course
+    isOwner: boolean
+}
+
+export const ViewCourseComponent = ({course, isOwner}: ViewCourseComponentProps) => {
     const navigate = useNavigate();
 
-    // let [user, setUser] = useState<User>();
     let [lessons, setLessons] = useState<Lesson[]>([]);
     let [quiz, setQuiz] = useState<Quiz>();
     let [isQuizOpened, setIsQuizOpened] = useState<boolean>(false);
     let popupRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // if(localStorage.getItem("token") === null) {
-        //     navigate("/");
-        // };
-        // loadUser();
         loadLessons();
     }, []);
 
@@ -37,12 +37,6 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
             loadQuiz();
         }
     }, [course]);
-
-    // const loadUser = () => {
-    //     getLoggedInUser().then(res => {
-    //         setUser(res.data);
-    //     })
-    // }
 
     const loadQuiz = () => {
         getQuizByCourseId(course!.id).then(res => {
@@ -128,17 +122,13 @@ export const ViewCourseComponent = ({course, isOwner}: any) => {
                     <div className="lessons-container">
                         {
                             lessons && lessons.map(lesson => {
-                                if(lesson.title) {
-                                    return <LessonCard
-                                        key={lesson.id}
-                                        lesson={lesson}
-                                        setLessons={setLessons}
-                                        lessonId={null}
-                                        isCreateMode={false}
-                                        isLessonBeingAdded={false}
-                                        setIsLessonBeingAdded={null}
-                                    ></LessonCard>
-                                }
+                                return <ViewLessonCard
+                                    key={lesson.id}
+                                    lesson={lesson}
+                                    handleEditLesson={null}
+                                    handleDeleteLesson={null}
+                                    isAbleToEdit={false}
+                                />
                             })
                         }
                     </div>

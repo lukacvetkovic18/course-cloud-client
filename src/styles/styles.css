@@ -130,6 +130,14 @@ button:hover {
     background-color: #796189;
 }
 
+.react-datepicker__navigation-icon.react-datepicker__navigation-icon--previous {
+    margin-top: 10px;
+}
+
+.react-datepicker__navigation-icon.react-datepicker__navigation-icon--next {
+    margin-top: 10px;
+}
+
 .login-container .radio {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -218,6 +226,7 @@ button:disabled {
     color: #D9D9D9;
     font-size: 40px;
     margin: 0 5%;
+    cursor: pointer;
 }
 
 .header-container button {
@@ -360,7 +369,7 @@ button:disabled {
 /* MY COURSES */
 
 .my-courses-container {
-    margin-top: 120px;
+    margin: 120px 0;
 }
 
 .my-courses-container img {
@@ -446,14 +455,19 @@ button:disabled {
 .course-popup-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
     background-color: #D9D9D9;
+    max-height: 80vh;
+    overflow-y: auto;
     width: 100%;
-    border-radius: 24px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .course-popup-container img {
     height: 250px;
-    width: 90%;
+    width: 375px;
     border-radius: 12px;
     margin: 5%;
 }
@@ -486,9 +500,11 @@ button:disabled {
     margin: 15px 5%;
     margin-top: 0;
     padding-top: 15px;
+    width: 80%;
 }
 
 .course-popup-container .buttons {
+    width: 100%;
     display: flex;
     justify-content: space-evenly;
     margin-bottom: 15px;
@@ -512,7 +528,7 @@ button:disabled {
 
 .course-popup-content {
     background: white;
-    width: 25%;
+    width: 50vw;
     border-radius: 24px;
     cursor: default;
 }
@@ -975,6 +991,11 @@ button:disabled {
     height: 250px;
 }
 
+.create-course-container .lessons-info,
+.create-course-container .quiz-info {
+    margin-top: 40px;
+}
+
 .create-course-container .lessons-info .lessons-title,
 .create-course-container .quiz-info span {
     font-size: 30px;
@@ -1081,6 +1102,7 @@ button:disabled {
     align-items: flex-start;
     width: 50%;
     border-radius: 8px;
+    margin: 10px 0;
 }
 
 .is-being-added {
@@ -1152,6 +1174,10 @@ button:disabled {
     margin: 10px;
 }
 
+.lesson-card-container .lesson-details {
+    margin: 20px 0;
+}
+
 .lesson-card-container .lesson-details .file-name.clickable:hover {
     text-decoration: underline;
     color: #796189;
@@ -1216,6 +1242,7 @@ button:disabled {
     display: flex;
     /* justify-content: center; */
     align-items: center;
+    margin: 10px 0;
 }
 
 .lesson-card-container .file-item .file-name{
@@ -1473,6 +1500,7 @@ select option:hover{
 }
 
 .view-course-container {
+    width: 70%;
     margin-top: 20px;
     display: flex;
     flex-direction: column;
@@ -1497,6 +1525,9 @@ select option:hover{
     margin: 20px 0;
 }
 
+.view-course-container .basic-info span {
+    text-align: center;
+}
 .view-course-container .basic-info span:nth-child(2) {
     font-size: 30px;
 }

@@ -1,12 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import example from "../assets/blank-profile-picture.png"
-import instagramIcon from "../assets/instagram-icon.png"
-import linkedInIcon from "../assets/linkedin-icon.png"
-import emailIcon from "../assets/email-icon.png"
-import phoneIcon from "../assets/phone-icon.png"
-import locationIcon from "../assets/location-icon.png"
-import dobIcon from "../assets/dob-icon.png"
-import genderIcon from "../assets/gender-icon.png"
+import { useState } from "react";
 
 export const ChangePasswordPopup = ({user}: any) => {
     let [newPassword, setNewPassword] = useState<string>("");

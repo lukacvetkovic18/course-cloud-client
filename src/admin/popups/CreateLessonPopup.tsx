@@ -47,7 +47,7 @@ export const CreateLessonPopup = ({courses, closeCreatePopup}: CreateLessonPopup
             id: Date.now(),
             name: file.name,
             type: file.type,
-            data: new Uint8Array(), // Placeholder, as we don't have the actual data yet
+            file: file,
             createdAt: new Date().toISOString()
         }));
 

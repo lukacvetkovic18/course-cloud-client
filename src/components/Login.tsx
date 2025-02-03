@@ -4,14 +4,18 @@ import { useNavigate } from "react-router";
 import { LandingPageState } from "../pages/LandingPage";
 import "../styles"
 
+interface LoginProps {
+    setPageState:  React.Dispatch<React.SetStateAction<LandingPageState>>;
+}
 
-export const Login = ({pageState, setPageState}: any) => {
+export const Login = ({setPageState}: LoginProps) => {
     const navigate = useNavigate();
 
     let [userInfo, setUserInfo] = useState<{
         email: string,
         password: string
     }>({email:"",password:""});
+    let [showError, setShowError] = useState<boolean>(false);
 
     useEffect(() => {
         if(localStorage.getItem("token") !== null) {
@@ -24,6 +28,8 @@ export const Login = ({pageState, setPageState}: any) => {
             localStorage.removeItem("token");
             localStorage.setItem("token", res.data.token);
             navigate("/home");
+        }).catch(() => {
+            setShowError(true);
         });
     }
  
@@ -47,6 +53,7 @@ export const Login = ({pageState, setPageState}: any) => {
         <>
             <div className="login-container">
                 <h2>Please Login To Continue</h2>
+                { showError && <div className="error-message">Email or Password you entered are incorrect.</div> }
                 <div className="input-container">
                     <span>Email:</span>
                     <input
@@ -67,7 +74,7 @@ export const Login = ({pageState, setPageState}: any) => {
                 </div>
                 <button onClick={handleLogin} disabled={!canLogin()}>Login</button>
                 <span className="redirect-text" onClick={() => setPageState(LandingPageState.REGISTER) }>Still don't have an account? Register here.</span>
-                <span className="redirect-text" onClick={() => setPageState(LandingPageState.PW_RESET) }>Can't remember your password? Reset here.</span>
+                {/* <span className="redirect-text" onClick={() => setPageState(LandingPageState.PW_RESET) }>Can't remember your password? Reset here.</span> */}
             </div>
         </>
     )

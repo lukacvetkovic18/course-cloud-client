@@ -1,31 +1,17 @@
-import { useEffect, useState } from "react";
-import example from "../../assets/example-button-speech-bubble-example-colorful-web-banner-illustration-vector.jpg"
-import { Course, User } from "../../utils/models";
-import { getOwnerOfCourse } from "../../services";
+import example from "../../assets/no-image.png"
+import { Course } from "../../utils/models";
 
 interface RecommendedCourseCardProps {
     course: Course;
+    handleCourseClick: (course: Course) => void
 }
 
-export const RecommendedCourseCard = ({course}: RecommendedCourseCardProps) => {
-    let [owner, setOwner] = useState<User>();
-    
-    useEffect(() => {
-        loadOwner();
-    }, [])
-
-
-    const loadOwner = () => {
-        getOwnerOfCourse(course.id).then(res => {
-            setOwner(res.data);
-        })
-    }
-
+export const RecommendedCourseCard = ({course, handleCourseClick}: RecommendedCourseCardProps) => {
     return (<>
-        <div className="card-container">
+        <div className="card-container" onClick={() => handleCourseClick(course)}>
             <img src={course.image || example}></img>
             <h3>{ course.title }</h3>
-            {owner && <span className="author">By {owner.firstName + " " + owner.lastName}</span>}
+            {course.owner && <span className="author">By {course.owner.firstName + " " + course.owner.lastName}</span>}
         </div>
     </>);
 }

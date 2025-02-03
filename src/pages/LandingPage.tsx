@@ -5,7 +5,7 @@ import { Login, Register } from "../components";
 export enum LandingPageState {
     LOGIN,
     REGISTER,
-    PW_RESET
+    // PW_RESET
 }
 
 export const LandingPage = () => {
@@ -20,22 +20,23 @@ export const LandingPage = () => {
         if(pageState === LandingPageState.LOGIN) {
             return (
                 <div>
-                    <Login pageState={pageState} setPageState={setPageState}></Login>
+                    <Login setPageState={setPageState}></Login>
                 </div>
             )
         } else if(pageState === LandingPageState.REGISTER) {
             return (
                 <div>
-                    <Register pageState={pageState} setPageState={setPageState}></Register>
-                </div>
-            )
-        } else {
-            return (
-                <div>
-                    <span>PW RESET</span>
+                    <Register setPageState={setPageState}></Register>
                 </div>
             )
         }
+        // else {
+        //     return (
+        //         <div>
+        //             <span>PW RESET</span>
+        //         </div>
+        //     )
+        // }
     }
  
     return (<>

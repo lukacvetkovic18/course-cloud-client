@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Course, FileModel, Lesson } from "../../utils/models";
-import emptyImage from "../../assets/add-image.png"
 import plusSign from "../../assets/plus-sign.png"
 import xSign from "../../assets/x-sign.png"
 import pdfIcon from "../../assets/pdf-icon.png"
 import imageIcon from "../../assets/image-icon.png"
-import { updateCourse, updateLesson } from "../../services/adminService";
-import { title } from "process";
+import { updateLesson } from "../../services/adminService";
 import { getFilesByLessonId } from "../../services/fileService";
 
 interface EditLessonPopupProps {
@@ -28,15 +26,18 @@ export const EditLessonPopup = ({lesson, courses, closeEditPopup}: EditLessonPop
 
     const loadFiles = () => {
         getFilesByLessonId(lesson.id).then(res => {
-            const files = res.data;
+            const files = res.data.map((file: any) => ({
+                id: file.id,
+                name: file.name,
+                type: file.type,
+                file: new File([new Blob([file.data], { type: file.type })], file.name, { type: file.type }),
+                createdAt: file.createdAt
+            }));
             setOriginalFiles(files);
             setUpdatedFiles(files);
-            setSelectedFiles(files.map((file: FileModel) => {
-                const blob = new Blob([file.data], { type: file.type });
-                return new File([blob], file.name, { type: file.type });
-            }));
-        })
-    }
+            setSelectedFiles(files.map((file: FileModel) => file.file));
+        });
+    };
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -61,7 +62,7 @@ export const EditLessonPopup = ({lesson, courses, closeEditPopup}: EditLessonPop
             id: Date.now(),
             name: file.name,
             type: file.type,
-            data: new Uint8Array(), // Placeholder, as we don't have the actual data yet
+            file: file,
             createdAt: new Date().toISOString()
         }));
 

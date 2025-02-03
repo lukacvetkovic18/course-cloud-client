@@ -1,4 +1,3 @@
-import example from "../../assets/blank-profile-picture.png"
 import { QuizAttempt } from "../../utils/models";
 
 interface QuizAttemptCardProps {

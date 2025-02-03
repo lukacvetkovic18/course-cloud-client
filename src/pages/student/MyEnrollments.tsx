@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Course, User } from "../../utils/models";
 import { getLoggedInUser } from "../../services";
-import { createEmptyCourse, getMyCourses, getMyEnrolledCourses } from "../../services/courseService";
+import { getMyEnrolledCourses } from "../../services/courseService";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { CoursePopup } from "../../components/CoursePopup";
 import { CourseCard } from "../../components/CourseCard";
+import { isUserStudent } from "../../services/userService";
 
 export const MyEnrollments = () => {
     const navigate = useNavigate();
@@ -15,6 +16,9 @@ export const MyEnrollments = () => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
+        isUserStudent().then(res => {
+            if(!res.data) navigate("/home")
+        });
         loadUser();
         loadEnrolledCourses();
     }, [])
@@ -49,14 +53,6 @@ export const MyEnrollments = () => {
         if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
             handleClosePopup();
         }
-    }
-
-    const handleAddCourseClick = () => {
-        createEmptyCourse().then(res => {
-            localStorage.removeItem("courseId");
-            localStorage.setItem("courseId", res.data.id);
-            navigate("/courses/create");
-        })
     }
 
     useEffect(() => {

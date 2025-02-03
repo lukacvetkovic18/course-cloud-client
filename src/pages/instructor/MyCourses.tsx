@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Course, User } from "../../utils/models";
 import { getLoggedInUser } from "../../services";
-import { createEmptyCourse, getMyCourses } from "../../services/courseService";
+import { getMyCourses } from "../../services/courseService";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { CoursePopup } from "../../components/CoursePopup";
 import { CourseCard } from "../../components/CourseCard";
+import { isUserInstructor } from "../../services/userService";
 
 export const MyCourses = () => {
     const navigate = useNavigate();
@@ -15,6 +16,9 @@ export const MyCourses = () => {
         if(localStorage.getItem("token") === null) {
             navigate("/");
         };
+        isUserInstructor().then(res => {
+            if(!res.data) navigate("/home")
+        });
         loadUser();
         loadUserCourses();
     }, [])
@@ -53,11 +57,7 @@ export const MyCourses = () => {
     }
 
     const handleAddCourseClick = () => {
-        createEmptyCourse().then(res => {
-            localStorage.removeItem("courseId");
-            localStorage.setItem("courseId", res.data.id);
-            navigate("/courses/create");
-        })
+        navigate("/courses/create");
     }
 
     useEffect(() => {
